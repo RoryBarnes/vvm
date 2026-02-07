@@ -1,0 +1,237 @@
+#!/bin/zsh
+# vvm - Virtual VPLanet Machine
+# Start an isolated Docker container with the complete VPLanet ecosystem.
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+readonly VVM_DIR="${0:A:h}"
+readonly VVM_IMAGE="vvm:latest"
+readonly VVM_CONTAINER="vvm"
+readonly VVM_VOLUME="vvm-workspace"
+
+# Detect platform and set appropriate values
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    readonly TOTAL_CORES=$(sysctl -n hw.ncpu)
+else
+    readonly TOTAL_CORES=$(nproc)
+fi
+readonly CONTAINER_CORES=$(( TOTAL_CORES - 1 ))
+
+# Find docker binary
+if command -v docker > /dev/null 2>&1; then
+    readonly DOCKER="$(command -v docker)"
+else
+    echo "Error: docker not found on PATH."
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# fnCheckDocker: Verify the Docker daemon is reachable
+# ---------------------------------------------------------------------------
+fnCheckDocker() {
+    if ! "${DOCKER}" info > /dev/null 2>&1; then
+        echo "Error: Docker daemon is not running."
+        echo ""
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+            echo "Start Colima with:"
+            echo "  colima start --cpu ${CONTAINER_CORES} --memory 8"
+        else
+            echo "Start Docker with:"
+            echo "  sudo systemctl start docker"
+        fi
+        exit 1
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnBuildImage: Build the Docker image if source files have changed
+# ---------------------------------------------------------------------------
+fnBuildImage() {
+    local bNeedsBuild=false
+
+    if ! "${DOCKER}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
+        bNeedsBuild=true
+    fi
+
+    if [ "${bNeedsBuild}" = false ]; then
+        local sImageCreated
+        sImageCreated=$("${DOCKER}" image inspect "${VVM_IMAGE}" \
+            --format '{{.Created}}' 2>/dev/null)
+
+        local iImageEpoch
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+            iImageEpoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" \
+                "${sImageCreated%%.*}" "+%s" 2>/dev/null || echo "0")
+        else
+            iImageEpoch=$(date -d "${sImageCreated}" "+%s" 2>/dev/null || echo "0")
+        fi
+
+        for sFile in "${VVM_DIR}/Dockerfile" "${VVM_DIR}/entrypoint.sh" "${VVM_DIR}/repos.conf"; do
+            if [ -f "${sFile}" ]; then
+                local iFileEpoch
+                if [[ "$(uname -s)" == "Darwin" ]]; then
+                    iFileEpoch=$(stat -f "%m" "${sFile}")
+                else
+                    iFileEpoch=$(stat -c "%Y" "${sFile}")
+                fi
+                if [ "${iFileEpoch}" -gt "${iImageEpoch}" ]; then
+                    bNeedsBuild=true
+                    break
+                fi
+            fi
+        done
+    fi
+
+    if [ "${bNeedsBuild}" = true ]; then
+        echo "[vvm] Building container image..."
+        "${DOCKER}" build -t "${VVM_IMAGE}" "${VVM_DIR}"
+        echo "[vvm] Image built."
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnCreateVolume: Ensure the named volume exists
+# ---------------------------------------------------------------------------
+fnCreateVolume() {
+    if ! "${DOCKER}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
+        echo "[vvm] Creating persistent workspace volume..."
+        "${DOCKER}" volume create "${VVM_VOLUME}"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnStartContainer: Run the container with appropriate mounts
+# ---------------------------------------------------------------------------
+fnStartContainer() {
+    local daRunArgs=(
+        --rm
+        -it
+        --name "${VVM_CONTAINER}"
+        --hostname vvm
+        --cpus "${CONTAINER_CORES}"
+        -v "${VVM_VOLUME}:/workspace"
+    )
+
+    # SSH agent forwarding
+    if [ -n "${SSH_AUTH_SOCK:-}" ]; then
+        daRunArgs+=(-v "${SSH_AUTH_SOCK}:/ssh-agent" -e "SSH_AUTH_SOCK=/ssh-agent")
+    fi
+
+    # Mount host git config read-only
+    if [ -f "${HOME}/.gitconfig" ]; then
+        daRunArgs+=(-v "${HOME}/.gitconfig:/root/.gitconfig:ro")
+    fi
+
+    "${DOCKER}" run "${daRunArgs[@]}" "${VVM_IMAGE}" "$@"
+}
+
+# ---------------------------------------------------------------------------
+# fnShowStatus: Display current state of vvm resources
+# ---------------------------------------------------------------------------
+fnShowStatus() {
+    echo "[vvm] Status:"
+    echo ""
+
+    if "${DOCKER}" info > /dev/null 2>&1; then
+        echo "  Docker daemon: running"
+    else
+        echo "  Docker daemon: NOT RUNNING"
+        return
+    fi
+
+    if "${DOCKER}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
+        local sCreated
+        sCreated=$("${DOCKER}" image inspect "${VVM_IMAGE}" \
+            --format '{{.Created}}' 2>/dev/null)
+        echo "  Image: ${VVM_IMAGE} (built: ${sCreated})"
+    else
+        echo "  Image: not built"
+    fi
+
+    if "${DOCKER}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
+        echo "  Volume: ${VVM_VOLUME} exists"
+    else
+        echo "  Volume: not created"
+    fi
+
+    if "${DOCKER}" container inspect "${VVM_CONTAINER}" > /dev/null 2>&1; then
+        echo "  Container: running"
+    else
+        echo "  Container: not running"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnDestroyVolume: Remove workspace volume after confirmation
+# ---------------------------------------------------------------------------
+fnDestroyVolume() {
+    echo "WARNING: This will delete all cloned repositories in the vvm workspace."
+    echo -n "Are you sure? [y/N] "
+    read -r sAnswer
+    if [[ "${sAnswer}" =~ ^[Yy]$ ]]; then
+        "${DOCKER}" volume rm "${VVM_VOLUME}" 2>/dev/null || true
+        echo "[vvm] Volume removed."
+    else
+        echo "[vvm] Cancelled."
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnPrintUsage: Display help text
+# ---------------------------------------------------------------------------
+fnPrintUsage() {
+    echo "Usage: vvm [options] [command]"
+    echo ""
+    echo "Start the Virtual VPLanet Machine container."
+    echo ""
+    echo "Options:"
+    echo "  --build     Force rebuild the container image"
+    echo "  --shell     Start an interactive shell (default)"
+    echo "  --status    Show container and volume status"
+    echo "  --destroy   Remove the workspace volume"
+    echo "  --help      Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  vvm                 Start interactive session"
+    echo "  vvm --build         Force rebuild then start"
+    echo "  vvm pytest          Run pytest inside the container"
+    echo "  vvm --status        Check if container and volume exist"
+}
+
+# ===========================================================================
+# Main
+# ===========================================================================
+
+case "${1:-}" in
+    --help|-h)
+        fnPrintUsage
+        exit 0
+        ;;
+    --status)
+        fnCheckDocker
+        fnShowStatus
+        exit 0
+        ;;
+    --destroy)
+        fnCheckDocker
+        fnDestroyVolume
+        exit 0
+        ;;
+    --build)
+        shift
+        fnCheckDocker
+        echo "[vvm] Forcing image rebuild..."
+        "${DOCKER}" build --no-cache -t "${VVM_IMAGE}" "${VVM_DIR}"
+        fnCreateVolume
+        fnStartContainer "$@"
+        ;;
+    *)
+        fnCheckDocker
+        fnBuildImage
+        fnCreateVolume
+        fnStartContainer "$@"
+        ;;
+esac
