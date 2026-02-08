@@ -20,10 +20,15 @@ fnPrintBanner() {
 # ---------------------------------------------------------------------------
 fnConfigureGit() {
     local sTokenFile="/run/secrets/gh_token"
+    local sToken=""
 
     if [ -f "${sTokenFile}" ]; then
-        local sToken
         sToken=$(cat "${sTokenFile}")
+    elif command -v gh > /dev/null 2>&1; then
+        sToken=$(gh auth token 2>/dev/null || true)
+    fi
+
+    if [ -n "${sToken}" ]; then
         echo "[vvm] GitHub credentials detected."
         git config --global url."https://${sToken}@github.com/".insteadOf \
             "git@github.com:"
@@ -188,6 +193,8 @@ fnPrintSummary() {
     echo "  GCC:       $(gcc --version | head -1)"
     echo "  vplanet:   ${VPLANET_BINARY}"
     echo "  Workspace: ${WORKSPACE}"
+    echo "  Node.js:   $(node --version 2>&1)"
+    echo "  Claude:    $(claude --version 2>&1 || echo 'not found')"
     echo "  Cores:     $(nproc)"
     echo "=========================================="
     echo ""
@@ -197,7 +204,16 @@ fnPrintSummary() {
 # Main
 # ===========================================================================
 
+# ---------------------------------------------------------------------------
+# fnPersistClaudeConfig: Symlink Claude Code config to the workspace volume
+# ---------------------------------------------------------------------------
+fnPersistClaudeConfig() {
+    mkdir -p "${WORKSPACE}/.claude"
+    ln -sfn "${WORKSPACE}/.claude" /root/.claude
+}
+
 fnPrintBanner
+fnPersistClaudeConfig
 fnConfigureGit
 fnParseReposConf
 fnSyncAllRepos

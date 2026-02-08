@@ -10,7 +10,8 @@ start the container with a single command:
 
 On first run, ``VVM``:
 
-1. Builds the Docker image (Ubuntu 22.04, Python 3.11, all dependencies)
+1. Builds the Docker image (Ubuntu 22.04, Python 3.11, Node.js 20, all
+   dependencies)
 2. Creates a persistent Docker volume for the workspace
 3. Clones all 9 repositories from GitHub
 4. Compiles the ``VPLanet`` C binary with ``-O3`` optimizations
@@ -47,13 +48,16 @@ Example Session
       GCC:       gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
       vplanet:   /workspace/vplanet-private/bin/vplanet
       Workspace: /workspace
+      Node.js:   v20.x.x
+      Claude:    1.x.x
       Cores:     9
     ==========================================
 
     root@vvm:/workspace#
 
-From here you can run simulations, execute tests, commit code, and push
-to GitHub. The host filesystem is completely isolated.
+From here you can run simulations, execute tests, use ``claude`` for
+AI-assisted coding, commit code, and push to GitHub. The host filesystem
+is completely isolated.
 
 Running a Command
 -----------------

@@ -107,6 +107,61 @@ Order matters: repositories are cloned and installed in the order listed.
 To add a new repository, append a line to ``repos.conf`` and run
 ``vvm --build`` to rebuild the image.
 
+VS Code
+-------
+
+``VVM`` includes a Dev Containers configuration for
+`VS Code <https://code.visualstudio.com/>`_. There are two ways to use
+VS Code with ``VVM``:
+
+**Option A: Attach to a running container**
+
+1. Start the container from the terminal: ``vvm``
+2. In VS Code, press ``Cmd+Shift+P`` (macOS) or ``Ctrl+Shift+P`` (Linux)
+3. Select **Dev Containers: Attach to Running Container**
+4. Choose the ``vvm`` container
+5. VS Code opens a new window connected to ``/workspace``
+
+**Option B: Open directly in Dev Container**
+
+1. Open the ``vvm`` repository folder in VS Code
+2. VS Code detects ``.devcontainer/devcontainer.json`` and prompts to
+   reopen in container
+3. Click **Reopen in Container**
+4. VS Code builds the image, starts the container, runs the entrypoint,
+   and connects automatically
+
+Option B requires the
+`Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_
+extension. It installs the GitHub CLI inside the container and forwards
+your host credentials, so ``gh auth login`` on the host is sufficient.
+
+Both options install the Python and C/C++ extensions inside the container
+automatically.
+
+Claude Code
+-----------
+
+`Claude Code <https://docs.anthropic.com/en/docs/claude-code>`_ is
+pre-installed in the container. On first use, authenticate with your
+Anthropic API key:
+
+.. code-block:: bash
+
+    claude
+
+Claude Code prompts for the key interactively. The key and all Claude
+Code configuration persist in the workspace volume at
+``/workspace/.claude/``, so you only need to authenticate once. The key
+is never stored on the host.
+
+To start Claude Code in a specific repository:
+
+.. code-block:: bash
+
+    cd /workspace/vplanet-private
+    claude
+
 Resource Allocation
 -------------------
 

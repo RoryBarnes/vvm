@@ -1,0 +1,27 @@
+{
+    "name": "VVM - Virtual VPLanet Machine",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": ".."
+    },
+    "workspaceFolder": "/workspace",
+    "mounts": [
+        "source=vvm-workspace,target=/workspace,type=volume"
+    ],
+    "overrideCommand": false,
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-vscode.cpptools"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/bin/python3.11",
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    }
+}
