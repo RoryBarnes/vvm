@@ -16,19 +16,22 @@ fnPrintBanner() {
 }
 
 # ---------------------------------------------------------------------------
-# fnConfigureGit: Prepare SSH and git for GitHub access
+# fnConfigureGit: Configure GitHub authentication via token
 # ---------------------------------------------------------------------------
 fnConfigureGit() {
-    if [ -n "${SSH_AUTH_SOCK:-}" ]; then
-        echo "[vvm] SSH agent forwarding detected."
-    else
-        echo "[vvm] WARNING: No SSH agent detected."
-        echo "[vvm]   Private repos may fail to clone."
-        echo "[vvm]   On the host, run: ssh-add ~/.ssh/id_ed25519"
-    fi
+    local sTokenFile="/run/secrets/gh_token"
 
-    mkdir -p ~/.ssh
-    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+    if [ -f "${sTokenFile}" ]; then
+        local sToken
+        sToken=$(cat "${sTokenFile}")
+        echo "[vvm] GitHub credentials detected."
+        git config --global url."https://${sToken}@github.com/".insteadOf \
+            "git@github.com:"
+    else
+        echo "[vvm] WARNING: No GitHub credentials found."
+        echo "[vvm]   Private repos may fail to clone."
+        echo "[vvm]   On host, run: gh auth login"
+    fi
 }
 
 # ---------------------------------------------------------------------------

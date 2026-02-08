@@ -20,6 +20,16 @@ else
 fi
 readonly CONTAINER_CORES=$(( TOTAL_CORES - 1 ))
 
+# Temp files to clean up on exit
+CLEANUP_FILES=()
+
+fnCleanup() {
+    for sFile in "${CLEANUP_FILES[@]}"; do
+        rm -f "${sFile}" 2>/dev/null
+    done
+}
+trap fnCleanup EXIT
+
 # Find docker binary
 if command -v docker > /dev/null 2>&1; then
     readonly DOCKER="$(command -v docker)"
@@ -115,14 +125,22 @@ fnStartContainer() {
         -v "${VVM_VOLUME}:/workspace"
     )
 
-    # SSH agent forwarding
-    if [ -n "${SSH_AUTH_SOCK:-}" ]; then
-        daRunArgs+=(-v "${SSH_AUTH_SOCK}:/ssh-agent" -e "SSH_AUTH_SOCK=/ssh-agent")
+    # GitHub authentication via gh CLI credential store
+    local sToken=""
+    if command -v gh > /dev/null 2>&1; then
+        sToken=$(gh auth token 2>/dev/null || true)
     fi
-
-    # Mount host git config read-only
-    if [ -f "${HOME}/.gitconfig" ]; then
-        daRunArgs+=(-v "${HOME}/.gitconfig:/root/.gitconfig:ro")
+    if [ -n "${sToken}" ]; then
+        local sTokenFile
+        sTokenFile=$(mktemp "${HOME}/.vvm_auth_XXXXXX")
+        echo "${sToken}" > "${sTokenFile}"
+        chmod 600 "${sTokenFile}"
+        CLEANUP_FILES+=("${sTokenFile}")
+        daRunArgs+=(-v "${sTokenFile}:/run/secrets/gh_token:ro")
+    else
+        echo "[vvm] WARNING: GitHub CLI not authenticated."
+        echo "[vvm]   Private repos will fail to clone."
+        echo "[vvm]   Run: gh auth login"
     fi
 
     "${DOCKER}" run "${daRunArgs[@]}" "${VVM_IMAGE}" "$@"

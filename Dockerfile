@@ -1,6 +1,7 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
 
 # System packages for vplanet C compilation and Python ecosystem
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -11,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-client \
     curl \
     ca-certificates \
+    gnupg \
     libhdf5-dev \
     liblapack-dev \
     libblas-dev \

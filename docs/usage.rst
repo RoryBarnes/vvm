@@ -121,7 +121,7 @@ Troubleshooting
 
 .. code-block:: bash
 
-    colima start --cpu 9 --memory 8
+    colima start --cpu $(( $(sysctl -n hw.ncpu) - 1 )) --memory 8
 
 **Docker daemon is not running (Linux):**
 
@@ -131,8 +131,8 @@ Troubleshooting
 
 **Private repo clone fails:**
 
-Ensure your SSH key is loaded: ``ssh-add ~/.ssh/id_ed25519``. Verify
-with ``ssh -T git@github.com``.
+Ensure the GitHub CLI is authenticated: ``gh auth login``. Verify
+with ``gh auth status``.
 
 **Pull skipped for a repository:**
 

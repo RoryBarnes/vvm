@@ -18,6 +18,7 @@ the host.
    install
    quickstart
    usage
+   security
    GitHub <https://github.com/VirtualPlanetaryLaboratory/vvm>
 
 Repositories
