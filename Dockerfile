@@ -23,7 +23,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     valgrind \
     lcov \
-    && add-apt-repository ppa:deadsnakes/ppa \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
+RUN add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
     python3.11 \
