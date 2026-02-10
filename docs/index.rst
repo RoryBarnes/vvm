@@ -19,7 +19,7 @@ the host.
    quickstart
    usage
    security
-   GitHub <https://github.com/VirtualPlanetaryLaboratory/vvm>
+   GitHub <https://github.com/RoryBarnes/vvm>
 
 Repositories
 ------------

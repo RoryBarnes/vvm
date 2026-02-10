@@ -30,18 +30,18 @@ fnCleanup() {
 }
 trap fnCleanup EXIT
 
-# Find docker binary
-if command -v docker > /dev/null 2>&1; then
-    readonly DOCKER="$(command -v docker)"
-else
-    echo "Error: docker not found on PATH."
-    exit 1
-fi
+DOCKER=""
 
 # ---------------------------------------------------------------------------
-# fnCheckDocker: Verify the Docker daemon is reachable
+# fnCheckDocker: Find the Docker binary and verify the daemon is reachable
 # ---------------------------------------------------------------------------
 fnCheckDocker() {
+    if command -v docker > /dev/null 2>&1; then
+        DOCKER="$(command -v docker)"
+    else
+        echo "Error: docker not found on PATH."
+        exit 1
+    fi
     if ! "${DOCKER}" info > /dev/null 2>&1; then
         echo "Error: Docker daemon is not running."
         echo ""
