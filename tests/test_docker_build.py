@@ -65,8 +65,11 @@ class TestDockerBuild:
             text=True,
             timeout=600,
         )
+        listTail = result.stdout.splitlines()[-50:]
+        sTail = "\n".join(listTail)
         assert result.returncode == 0, (
-            f"Docker build failed:\n{result.stderr}"
+            f"Docker build failed:\n{result.stderr}\n"
+            f"Build output (last 50 lines):\n{sTail}"
         )
 
     def test_container_runs(self):
