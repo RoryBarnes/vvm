@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VVM Documentation &mdash; VVM 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation Guide" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            VVM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Authentication and Security</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vvm">GitHub</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">VVM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">VVM Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vvm-documentation">
+<h1>VVM Documentation<a class="headerlink" href="#vvm-documentation" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> (Virtual VPLanet Machine) is an isolated Docker container for the complete
+<a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet">VPLanet</a> development ecosystem.
+It packages all 9 repositories into a single, reproducible environment where code changes
+cannot affect the host filesystem. A single <code class="docutils literal notranslate"><span class="pre">vvm</span></code> command starts the container, pulls
+the latest code from GitHub, compiles <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code>, installs all Python packages, and drops
+into a ready-to-use shell.</p>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> is designed for safe, long-running AI-assisted coding sessions and multi-agent
+workflows. All repositories persist in a Docker named volume that is fully isolated from
+the host.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Authentication and Security</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vvm">GitHub</a></li>
+</ul>
+</div>
+<section id="repositories">
+<h2>Repositories<a class="headerlink" href="#repositories" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> manages the following repositories:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Repository</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet-private">vplanet-private</a></p></td>
+<td><p>VPLanet C source and Python package (branch: v3.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplot">vplot</a></p></td>
+<td><p>Plotting package for VPLanet output</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vspace">vspace</a></p></td>
+<td><p>Parameter sweep generator</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/bigplanet">bigplanet</a></p></td>
+<td><p>HDF5 compression and analysis</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/multi-planet">multi-planet</a></p></td>
+<td><p>Multi-core simulation runner</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/RoryBarnes/alabi">alabi</a></p></td>
+<td><p>Machine learning posterior inference</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/jbirky/vplanet_inference">vplanet_inference</a></p></td>
+<td><p>Interface for Bayesian inference</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/RoryBarnes/MaxLEV">MaxLEV</a></p></td>
+<td><p>Maximum likelihood estimator</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet">vplanet</a></p></td>
+<td><p>Public VPLanet (reference copy)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The VPLanet Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; VVM 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Authentication and Security" href="security.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            VVM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workspace-layout">Workspace Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#persistence">Persistence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#branch-management">Branch Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#repos-conf">repos.conf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#claude-code">Claude Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resource-allocation">Resource Allocation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Authentication and Security</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vvm">GitHub</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VVM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<section id="commands">
+<h2>Commands<a class="headerlink" href="#commands" title="Link to this heading"></a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">VVM</span></code> from the host with the following options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm<span class="w">                   </span><span class="c1"># Start an interactive shell</span>
+vvm<span class="w"> </span>&lt;command&gt;<span class="w">         </span><span class="c1"># Run a command inside the container</span>
+vvm<span class="w"> </span>--build<span class="w">           </span><span class="c1"># Force rebuild the image, then start</span>
+vvm<span class="w"> </span>--status<span class="w">          </span><span class="c1"># Show image, volume, and container state</span>
+vvm<span class="w"> </span>--destroy<span class="w">         </span><span class="c1"># Remove the workspace volume</span>
+vvm<span class="w"> </span>--help<span class="w">            </span><span class="c1"># Show usage information</span>
+</pre></div>
+</div>
+</section>
+<section id="workspace-layout">
+<h2>Workspace Layout<a class="headerlink" href="#workspace-layout" title="Link to this heading"></a></h2>
+<p>Inside the container, <code class="docutils literal notranslate"><span class="pre">/workspace</span></code> contains all repositories:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/workspace/
+<span class="w">  </span>vplanet-private/<span class="w">    </span><span class="c1"># VPLanet C source and Python package (branch: v3.0)</span>
+<span class="w">  </span>vplot/<span class="w">              </span><span class="c1"># Plotting package for VPLanet output</span>
+<span class="w">  </span>vspace/<span class="w">             </span><span class="c1"># Parameter sweep generator</span>
+<span class="w">  </span>bigplanet/<span class="w">          </span><span class="c1"># HDF5 compression and analysis</span>
+<span class="w">  </span>multi-planet/<span class="w">       </span><span class="c1"># Multi-core simulation runner</span>
+<span class="w">  </span>alabi/<span class="w">              </span><span class="c1"># Machine learning posterior inference</span>
+<span class="w">  </span>vplanet_inference/<span class="w">  </span><span class="c1"># Interface for Bayesian inference</span>
+<span class="w">  </span>MaxLEV/<span class="w">             </span><span class="c1"># Maximum likelihood estimator</span>
+<span class="w">  </span>vplanet/<span class="w">            </span><span class="c1"># Public VPLanet (reference copy)</span>
+</pre></div>
+</div>
+<p>The native <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> binary is on PATH at
+<code class="docutils literal notranslate"><span class="pre">/workspace/vplanet-private/bin/vplanet</span></code>. Standard development commands
+work as expected:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vplanet<span class="w"> </span>-v<span class="w">                            </span><span class="c1"># Check VPLanet version</span>
+<span class="nb">cd</span><span class="w"> </span>/workspace/vspace<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w">        </span><span class="c1"># Run vspace tests</span>
+git<span class="w"> </span>status<span class="w">                            </span><span class="c1"># Check repo state</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Fix bug&quot;</span><span class="w">               </span><span class="c1"># Commit changes</span>
+git<span class="w"> </span>push<span class="w">                              </span><span class="c1"># Push to GitHub</span>
+</pre></div>
+</div>
+</section>
+<section id="persistence">
+<h2>Persistence<a class="headerlink" href="#persistence" title="Link to this heading"></a></h2>
+<p>Repositories persist in a Docker named volume (<code class="docutils literal notranslate"><span class="pre">vvm-workspace</span></code>) across
+container restarts. Cloned repos, local commits, and branch checkouts all
+survive between sessions. Only <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--destroy</span></code> removes the volume.</p>
+<p>The container itself is ephemeral (<code class="docutils literal notranslate"><span class="pre">--rm</span></code>). No container state persists
+outside the volume.</p>
+</section>
+<section id="branch-management">
+<h2>Branch Management<a class="headerlink" href="#branch-management" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> clones the default branch for each repository on first run (see
+<code class="docutils literal notranslate"><span class="pre">repos.conf</span></code>). You can switch branches freely inside the container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet-private
+git<span class="w"> </span>checkout<span class="w"> </span>ClimaGrid
+</pre></div>
+</div>
+<p>On subsequent starts, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> pulls the branch you are currently on. If you
+have switched away from the default branch, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> skips the pull and
+prints a message.</p>
+</section>
+<section id="repos-conf">
+<h2>repos.conf<a class="headerlink" href="#repos-conf" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">repos.conf</span></code> file defines which repositories <code class="docutils literal notranslate"><span class="pre">VVM</span></code> manages. Each
+line specifies a repository name, GitHub URL, default branch, and install
+method, separated by pipes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>name<span class="p">|</span>url<span class="p">|</span>branch<span class="p">|</span>install_method
+</pre></div>
+</div>
+<p>Lines beginning with <code class="docutils literal notranslate"><span class="pre">#</span></code> are comments.</p>
+<p><strong>Install methods:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">c_and_pip</span></code></p></td>
+<td><p>Compile C binary with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">opt</span></code>, then <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span> <span class="pre">--no-deps</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pip_no_deps</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span> <span class="pre">--no-deps</span></code> (dependencies provided by Dockerfile)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pip_editable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> (standalone package, resolves its own deps)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scripts_only</span></code></p></td>
+<td><p>Add to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> and <code class="docutils literal notranslate"><span class="pre">PATH</span></code> only</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reference</span></code></p></td>
+<td><p>Clone for reference, do not install</p></td>
+</tr>
+</tbody>
+</table>
+<p>Order matters: repositories are cloned and installed in the order listed.</p>
+<p>To add a new repository, append a line to <code class="docutils literal notranslate"><span class="pre">repos.conf</span></code> and run
+<code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--build</span></code> to rebuild the image.</p>
+</section>
+<section id="vs-code">
+<h2>VS Code<a class="headerlink" href="#vs-code" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> includes a Dev Containers configuration for
+<a class="reference external" href="https://code.visualstudio.com/">VS Code</a>. There are two ways to use
+VS Code with <code class="docutils literal notranslate"><span class="pre">VVM</span></code>:</p>
+<p><strong>Option A: Attach to a running container</strong></p>
+<ol class="arabic simple">
+<li><p>Start the container from the terminal: <code class="docutils literal notranslate"><span class="pre">vvm</span></code></p></li>
+<li><p>In VS Code, press <code class="docutils literal notranslate"><span class="pre">Cmd+Shift+P</span></code> (macOS) or <code class="docutils literal notranslate"><span class="pre">Ctrl+Shift+P</span></code> (Linux)</p></li>
+<li><p>Select <strong>Dev Containers: Attach to Running Container</strong></p></li>
+<li><p>Choose the <code class="docutils literal notranslate"><span class="pre">vvm</span></code> container</p></li>
+<li><p>VS Code opens a new window connected to <code class="docutils literal notranslate"><span class="pre">/workspace</span></code></p></li>
+</ol>
+<p><strong>Option B: Open directly in Dev Container</strong></p>
+<ol class="arabic simple">
+<li><p>Open the <code class="docutils literal notranslate"><span class="pre">vvm</span></code> repository folder in VS Code</p></li>
+<li><p>VS Code detects <code class="docutils literal notranslate"><span class="pre">.devcontainer/devcontainer.json</span></code> and prompts to
+reopen in container</p></li>
+<li><p>Click <strong>Reopen in Container</strong></p></li>
+<li><p>VS Code builds the image, starts the container, runs the entrypoint,
+and connects automatically</p></li>
+</ol>
+<p>Option B requires the
+<a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers</a>
+extension. It installs the GitHub CLI inside the container and forwards
+your host credentials, so <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host is sufficient.</p>
+<p>Both options install the Python and C/C++ extensions inside the container
+automatically.</p>
+</section>
+<section id="claude-code">
+<h2>Claude Code<a class="headerlink" href="#claude-code" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> is
+pre-installed in the container. On first use, authenticate with your
+Anthropic API key:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>claude
+</pre></div>
+</div>
+<p>Claude Code prompts for the key interactively. The key and all Claude
+Code configuration persist in the workspace volume at
+<code class="docutils literal notranslate"><span class="pre">/workspace/.claude/</span></code>, so you only need to authenticate once. The key
+is never stored on the host.</p>
+<p>To start Claude Code in a specific repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet-private
+claude
+</pre></div>
+</div>
+</section>
+<section id="resource-allocation">
+<h2>Resource Allocation<a class="headerlink" href="#resource-allocation" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> allocates N-1 CPU cores to the container, where N is the host’s
+total core count. Memory is managed by Colima on macOS (set via
+<code class="docutils literal notranslate"><span class="pre">colima</span> <span class="pre">start</span> <span class="pre">--memory</span></code>) or by Docker Engine on Linux.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p><strong>Docker daemon is not running (macOS):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>
+</pre></div>
+</div>
+<p><strong>Docker daemon is not running (Linux):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>docker
+</pre></div>
+</div>
+<p><strong>Private repo clone fails:</strong></p>
+<p>Ensure the GitHub CLI is authenticated: <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code>. Verify
+with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">status</span></code>.</p>
+<p><strong>Pull skipped for a repository:</strong></p>
+<p>This means you have local commits that have diverged from the remote.
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> uses <code class="docutils literal notranslate"><span class="pre">--ff-only</span></code> to avoid data loss. Resolve manually with
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span></code> inside the container.</p>
+<p><strong>Image rebuild needed after editing repos.conf:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> detects changes to <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>, <code class="docutils literal notranslate"><span class="pre">entrypoint.sh</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">repos.conf</span></code> and rebuilds automatically. To force a full rebuild:
+<code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--build</span></code>.</p>
+<p><strong>Starting fresh:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm<span class="w"> </span>--destroy
+vvm
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="security.html" class="btn btn-neutral float-right" title="Authentication and Security" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The VPLanet Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

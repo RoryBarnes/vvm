@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation Guide &mdash; VVM 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick Start" href="quickstart.html" />
+    <link rel="prev" title="VVM Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            VVM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#macos">macOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linux">Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verifying-the-installation">Verifying the Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Authentication and Security</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vvm">GitHub</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VVM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-guide">
+<h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> requires three tools on the host: <strong>Docker</strong>, a <strong>Docker runtime</strong>,
+and the <strong>GitHub CLI</strong> (<code class="docutils literal notranslate"><span class="pre">gh</span></code>). The installation differs between macOS and
+Linux because macOS needs a lightweight VM to run Linux containers.</p>
+<section id="macos">
+<h2>macOS<a class="headerlink" href="#macos" title="Link to this heading"></a></h2>
+<p><strong>1. Install Docker CLI, Colima, and GitHub CLI</strong></p>
+<p><a class="reference external" href="https://github.com/abiosoft/colima">Colima</a> provides a lightweight Docker
+daemon on macOS. The <a class="reference external" href="https://cli.github.com/">GitHub CLI</a> manages
+authentication securely via your OS keychain (see
+<a class="reference external" href="security">Authentication and Security</a> for details). Install via MacPorts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>gh
+</pre></div>
+</div>
+<p>Or via Homebrew:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>gh
+</pre></div>
+</div>
+<p><strong>2. Start Colima</strong></p>
+<p>Start the VM with one fewer CPU than your total core count:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>
+</pre></div>
+</div>
+<p>Colima runs a minimal Linux VM that starts in seconds and uses minimal
+resources when idle. You only need to run this once after each reboot.</p>
+<p><strong>3. Clone and install VVM</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/VirtualPlanetaryLaboratory/vvm.git
+<span class="nb">cd</span><span class="w"> </span>vvm
+chmod<span class="w"> </span>+x<span class="w"> </span>vvm
+sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/vvm&quot;</span><span class="w"> </span>/opt/local/bin/vvm
+</pre></div>
+</div>
+<p>If using Homebrew, link to <code class="docutils literal notranslate"><span class="pre">/usr/local/bin/vvm</span></code> instead.</p>
+<p><strong>4. Authenticate with GitHub and launch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
+vvm
+</pre></div>
+</div>
+<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong>, and <strong>Login with a web browser</strong> when
+prompted. <code class="docutils literal notranslate"><span class="pre">VVM</span></code> reads the token from <code class="docutils literal notranslate"><span class="pre">gh</span></code>’s credential store at
+startup and passes it to the container via an ephemeral file that is
+never stored in environment variables or shell history. See
+<a class="reference external" href="security">Authentication and Security</a> for the full explanation.</p>
+</section>
+<section id="linux">
+<h2>Linux<a class="headerlink" href="#linux" title="Link to this heading"></a></h2>
+<p>On Linux, Docker Engine provides the daemon natively. No VM is needed.</p>
+<p><strong>1. Install Docker Engine and GitHub CLI</strong></p>
+<p>Follow the official Docker instructions for your distribution at
+<a class="reference external" href="https://docs.docker.com/engine/install/">docs.docker.com/engine/install</a>.</p>
+<p>On Ubuntu or Debian:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>docker-ce<span class="w"> </span>docker-ce-cli<span class="w"> </span>containerd.io
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+</pre></div>
+</div>
+<p>Log out and back in for the group change to take effect.</p>
+<p>Install the GitHub CLI following <a class="reference external" href="https://cli.github.com/manual/installation">cli.github.com/manual/installation</a>.</p>
+<p><strong>2. Clone and install VVM</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/VirtualPlanetaryLaboratory/vvm.git
+<span class="nb">cd</span><span class="w"> </span>vvm
+chmod<span class="w"> </span>+x<span class="w"> </span>vvm
+sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/vvm&quot;</span><span class="w"> </span>/usr/local/bin/vvm
+</pre></div>
+</div>
+<p><strong>3. Authenticate with GitHub and launch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
+vvm
+</pre></div>
+</div>
+</section>
+<section id="verifying-the-installation">
+<h2>Verifying the Installation<a class="headerlink" href="#verifying-the-installation" title="Link to this heading"></a></h2>
+<p>After <code class="docutils literal notranslate"><span class="pre">VVM</span></code> finishes its startup sequence, verify that the environment
+is working:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vplanet<span class="w"> </span>-v
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import vplanet; print(vplanet.__file__)&quot;</span>
+pytest<span class="w"> </span>/workspace/vspace/tests/<span class="w"> </span>-x
+</pre></div>
+</div>
+<p>The first command confirms the native C binary is on PATH. The second
+confirms the Python package is importable. The third runs a test suite
+to verify the full toolchain.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="VVM Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The VPLanet Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

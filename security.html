@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentication and Security &mdash; VVM 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            VVM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Authentication and Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How It Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-not-ssh-keys">Why Not SSH Keys?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-not-environment-variables">Why Not Environment Variables?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-the-github-cli">Why the GitHub CLI?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vvm">GitHub</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VVM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Authentication and Security</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/security.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="authentication-and-security">
+<h1>Authentication and Security<a class="headerlink" href="#authentication-and-security" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> needs to clone private GitHub repositories into the container.
+This page explains how authentication works, why we chose this approach,
+and what to do if something goes wrong.</p>
+<section id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>When you run <code class="docutils literal notranslate"><span class="pre">vvm</span></code> on the host, four things happen:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">vvm</span></code> script calls <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">token</span></code> to read your GitHub
+credential from the <code class="docutils literal notranslate"><span class="pre">gh</span></code> CLI’s secure storage (your OS keychain).</p></li>
+<li><p>The token is written to a temporary file in your home directory with
+permissions set to owner-only (mode 600).</p></li>
+<li><p>Docker mounts that file read-only inside the container at
+<code class="docutils literal notranslate"><span class="pre">/run/secrets/gh_token</span></code>.</p></li>
+<li><p>The container’s entrypoint reads the file and configures <code class="docutils literal notranslate"><span class="pre">git</span></code> to
+use HTTPS with the token for all GitHub URLs.</p></li>
+</ol>
+<p>When the container exits, the <code class="docutils literal notranslate"><span class="pre">vvm</span></code> script deletes the temporary file.
+If the script is interrupted (Ctrl+C, crash), a shell trap still runs
+the cleanup. The token is never stored in an environment variable, never
+appears in your shell history, and never shows up in <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">inspect</span></code>.</p>
+</section>
+<section id="why-not-ssh-keys">
+<h2>Why Not SSH Keys?<a class="headerlink" href="#why-not-ssh-keys" title="Link to this heading"></a></h2>
+<p>SSH is the standard way to authenticate with GitHub from a terminal.
+We tried three variations before settling on the current approach:</p>
+<p><strong>SSH agent forwarding</strong> does not work on macOS with Colima. The SSH
+agent socket lives on the macOS host, but Docker runs inside Colima’s
+lightweight Linux VM. The socket path cannot cross the VM boundary, so
+the container cannot reach the agent.</p>
+<p><strong>Mounting the SSH directory</strong> (<code class="docutils literal notranslate"><span class="pre">~/.ssh</span></code>) read-only into the container
+fails if the key has a passphrase. Without an agent to provide the
+decrypted key, <code class="docutils literal notranslate"><span class="pre">git</span></code> prompts for the passphrase inside a non-interactive
+environment and the clone fails.</p>
+<p><strong>Generating a dedicated SSH key without a passphrase</strong> would work, but
+creates a long-lived credential on disk that is harder to audit and
+rotate than a token managed by <code class="docutils literal notranslate"><span class="pre">gh</span></code>.</p>
+</section>
+<section id="why-not-environment-variables">
+<h2>Why Not Environment Variables?<a class="headerlink" href="#why-not-environment-variables" title="Link to this heading"></a></h2>
+<p>A common pattern in Docker workflows is to pass credentials as
+environment variables (<code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">GITHUB_TOKEN=...</span></code>). We avoid this for
+three reasons:</p>
+<ol class="arabic simple">
+<li><p><strong>Open-source visibility.</strong> This repository is public. If the source
+code tells users to set <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code>, an attacker who reads the
+code knows exactly which environment variable to look for on any
+machine running <code class="docutils literal notranslate"><span class="pre">VVM</span></code>. Ephemeral files at a randomized path reveal
+nothing useful.</p></li>
+<li><p><strong>Container inspection.</strong> Running <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">inspect</span> <span class="pre">vvm</span></code> prints every
+environment variable in plain text. A mounted file at
+<code class="docutils literal notranslate"><span class="pre">/run/secrets/gh_token</span></code> does not appear in <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">inspect</span></code>.</p></li>
+<li><p><strong>Shell history.</strong> Typing <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">GITHUB_TOKEN=ghp_...</span></code> saves the
+token in <code class="docutils literal notranslate"><span class="pre">~/.zsh_history</span></code> or <code class="docutils literal notranslate"><span class="pre">~/.bash_history</span></code>. Using
+<code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">token</span></code> reads from the OS keychain without user interaction.</p></li>
+</ol>
+</section>
+<section id="why-the-github-cli">
+<h2>Why the GitHub CLI?<a class="headerlink" href="#why-the-github-cli" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="https://cli.github.com/">GitHub CLI</a> (<code class="docutils literal notranslate"><span class="pre">gh</span></code>) stores credentials
+in your operating system’s keychain (Keychain Access on macOS,
+<code class="docutils literal notranslate"><span class="pre">gnome-keyring</span></code> or <code class="docutils literal notranslate"><span class="pre">pass</span></code> on Linux). This means:</p>
+<ul class="simple">
+<li><p>You authenticate once with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> and never handle a token
+directly.</p></li>
+<li><p>The credential is encrypted at rest by the OS, not stored in a plain
+text file.</p></li>
+<li><p>Token rotation is as simple as <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">refresh</span></code>.</p></li>
+<li><p>Fine-grained personal access tokens can be scoped to specific
+repositories with read-only permissions, limiting the impact of any
+leak.</p></li>
+</ul>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<p>If you have not authenticated yet:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
+</pre></div>
+</div>
+<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong> protocol, and <strong>Login with a web browser</strong>
+when prompted. After authenticating, verify with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>status
+</pre></div>
+</div>
+<p>You should see your GitHub username and the active token source. From
+this point, <code class="docutils literal notranslate"><span class="pre">vvm</span></code> reads the token automatically.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p><strong>“GitHub CLI not authenticated” warning on startup:</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host (not inside the container). <code class="docutils literal notranslate"><span class="pre">VVM</span></code>
+reads the token before starting Docker.</p>
+<p><strong>“No GitHub credentials found” inside the container:</strong></p>
+<p>This means the token file was not mounted. On macOS with Colima, ensure
+Colima is sharing your home directory (this is the default). Verify with
+<code class="docutils literal notranslate"><span class="pre">colima</span> <span class="pre">list</span></code> — the mount column should show <code class="docutils literal notranslate"><span class="pre">~</span></code>.</p>
+<p><strong>Token expired or revoked:</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">refresh</span></code> on the host, then restart the container.</p>
+<p><strong>Want to use a different GitHub account:</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> again and select the new account. The next
+<code class="docutils literal notranslate"><span class="pre">vvm</span></code> invocation picks up the new credentials automatically.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The VPLanet Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
