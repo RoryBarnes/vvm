@@ -1,12 +1,14 @@
-name: Tests
+name: tests
 
-on: [pull_request]
+on:
+  pull_request:
+    branches: [main]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: shellcheck entrypoint
         run: shellcheck -s bash entrypoint.sh
@@ -15,19 +17,32 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
 
   unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    name: 'py${{ matrix.python-version }} on ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-26]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
-      - uses: actions/setup-python@v5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies
-        run: pip install pytest
+        run: python -m pip install pytest
 
-      - name: Install bats and zsh
+      - name: Install bats and zsh (Linux)
+        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y bats zsh
+
+      - name: Install bats (macOS)
+        if: runner.os == 'macOS'
+        run: brew install bats-core
 
       - name: repos.conf validation
         run: pytest tests/test_repos_conf.py -v
@@ -41,14 +56,14 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install test dependencies
-        run: pip install pytest
+        run: python -m pip install pytest
 
       - name: Docker smoke tests
         run: pytest tests/test_docker_build.py -v -m docker
