@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 WORKSPACE="${WORKSPACE:-/workspace}"
 REPOS_CONF="${REPOS_CONF:-/etc/vvm/repos.conf}"
@@ -182,6 +181,14 @@ fnInstallAllRepos() {
 }
 
 # ---------------------------------------------------------------------------
+# fnPersistClaudeConfig: Symlink Claude Code config to the workspace volume
+# ---------------------------------------------------------------------------
+fnPersistClaudeConfig() {
+    mkdir -p "${WORKSPACE}/.claude"
+    ln -sfn "${WORKSPACE}/.claude" /root/.claude
+}
+
+# ---------------------------------------------------------------------------
 # fnPrintSummary: Display environment summary
 # ---------------------------------------------------------------------------
 fnPrintSummary() {
@@ -201,24 +208,17 @@ fnPrintSummary() {
 }
 
 # ===========================================================================
-# Main
+# Main — only runs when executed directly (not when sourced by tests)
 # ===========================================================================
-
-# ---------------------------------------------------------------------------
-# fnPersistClaudeConfig: Symlink Claude Code config to the workspace volume
-# ---------------------------------------------------------------------------
-fnPersistClaudeConfig() {
-    mkdir -p "${WORKSPACE}/.claude"
-    ln -sfn "${WORKSPACE}/.claude" /root/.claude
-}
-
-fnPrintBanner
-fnPersistClaudeConfig
-fnConfigureGit
-fnParseReposConf
-fnSyncAllRepos
-fnBuildVplanet
-fnInstallAllRepos
-fnPrintSummary
-
-exec "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -euo pipefail
+    fnPrintBanner
+    fnPersistClaudeConfig
+    fnConfigureGit
+    fnParseReposConf
+    fnSyncAllRepos
+    fnBuildVplanet
+    fnInstallAllRepos
+    fnPrintSummary
+    exec "$@"
+fi

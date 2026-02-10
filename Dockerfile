@@ -3,6 +3,8 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # System packages for vplanet C compilation and Python ecosystem
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
@@ -66,21 +68,17 @@ RUN pip install --no-cache-dir \
     "SALib>=1.4" \
     "argparse"
 
-# Node.js 20 LTS for Claude Code CLI
+# Node.js 20 LTS + Claude Code CLI
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# Claude Code CLI
-RUN npm install -g @anthropic-ai/claude-code
-
-RUN mkdir -p /workspace
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g @anthropic-ai/claude-code \
+    && mkdir -p /workspace
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-RUN git config --system advice.detachedHead false
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && git config --system advice.detachedHead false
 
 ENV WORKSPACE=/workspace
 ENV VPLANET_BINARY=/workspace/vplanet-private/bin/vplanet

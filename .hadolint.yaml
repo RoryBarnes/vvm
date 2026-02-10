@@ -1,0 +1,5 @@
+---
+ignored:
+  - DL3008  # Pin versions in apt-get (impractical for dev environment)
+  - DL3013  # Pin versions in pip (version ranges are intentional)
+  - DL3016  # Pin versions in npm

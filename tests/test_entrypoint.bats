@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # Unit tests for entrypoint.sh functions.
-# These run without Docker by sourcing the script with mocks.
+# The source guard in entrypoint.sh lets us source it without executing main.
 
 REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 
@@ -21,6 +21,9 @@ CONF
     export WORKSPACE="${TEST_DIR}/workspace"
     export REPOS_CONF="${TEST_DIR}/repos.conf"
     mkdir -p "${WORKSPACE}"
+
+    # Source entrypoint.sh — the guard prevents main from running
+    source "${REPO_ROOT}/entrypoint.sh"
 }
 
 teardown() {
@@ -32,41 +35,28 @@ teardown() {
 # ---------------------------------------------------------------------------
 
 @test "fnParseReposConf: parses correct number of entries" {
-    source "${REPO_ROOT}/entrypoint.sh" --source-only 2>/dev/null || true
-
-    # Source just the function definitions by extracting them
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${#REPO_NAMES[@]}" -eq 3 ]
 }
 
 @test "fnParseReposConf: skips comment lines" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
-    # No entry should be named "# Comment line"
     for sName in "${REPO_NAMES[@]}"; do
         [[ ! "${sName}" =~ ^# ]]
     done
 }
 
 @test "fnParseReposConf: skips blank lines" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
-    # All names should be non-empty
     for sName in "${REPO_NAMES[@]}"; do
         [ -n "${sName}" ]
     done
 }
 
 @test "fnParseReposConf: captures repo names correctly" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${REPO_NAMES[0]}" = "repo-one" ]
@@ -75,8 +65,6 @@ teardown() {
 }
 
 @test "fnParseReposConf: captures URLs correctly" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${REPO_URLS[0]}" = "git@github.com:org/repo-one.git" ]
@@ -84,8 +72,6 @@ teardown() {
 }
 
 @test "fnParseReposConf: captures branches correctly" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${REPO_BRANCHES[0]}" = "main" ]
@@ -94,8 +80,6 @@ teardown() {
 }
 
 @test "fnParseReposConf: captures install methods correctly" {
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${REPO_METHODS[0]}" = "pip_no_deps" ]
@@ -108,20 +92,16 @@ teardown() {
 # ---------------------------------------------------------------------------
 
 @test "fnPersistClaudeConfig: creates .claude directory in workspace" {
-    eval "$(sed -n '/^fnPersistClaudeConfig/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
-    fnPersistClaudeConfig
+    # ln to /root/.claude will fail without root; ignore that
+    fnPersistClaudeConfig 2>/dev/null || true
 
     [ -d "${WORKSPACE}/.claude" ]
 }
 
 @test "fnPersistClaudeConfig: creates symlink at /root/.claude" {
-    # Skip if not running as root (CI may not be root)
     if [ "$(id -u)" -ne 0 ]; then
         skip "requires root to write to /root"
     fi
-
-    eval "$(sed -n '/^fnPersistClaudeConfig/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
 
     fnPersistClaudeConfig
 
@@ -134,8 +114,6 @@ teardown() {
 # ---------------------------------------------------------------------------
 
 @test "fnInstallRepo: scripts_only prints expected message" {
-    eval "$(sed -n '/^fnInstallRepo/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     run fnInstallRepo "test-repo" "scripts_only"
 
     [ "$status" -eq 0 ]
@@ -143,8 +121,6 @@ teardown() {
 }
 
 @test "fnInstallRepo: reference prints expected message" {
-    eval "$(sed -n '/^fnInstallRepo/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     run fnInstallRepo "test-repo" "reference"
 
     [ "$status" -eq 0 ]
@@ -152,8 +128,6 @@ teardown() {
 }
 
 @test "fnInstallRepo: unknown method prints warning" {
-    eval "$(sed -n '/^fnInstallRepo/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     run fnInstallRepo "test-repo" "invalid_method"
 
     [ "$status" -eq 0 ]
@@ -167,8 +141,6 @@ teardown() {
 @test "fnParseReposConf: handles empty repos.conf" {
     echo "" > "${TEST_DIR}/repos.conf"
 
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
-
     fnParseReposConf
 
     [ "${#REPO_NAMES[@]}" -eq 0 ]
@@ -179,8 +151,6 @@ teardown() {
 # This file has only comments
 # and nothing else
 CONF
-
-    eval "$(sed -n '/^fnParseReposConf/,/^}/p' "${REPO_ROOT}/entrypoint.sh")"
 
     fnParseReposConf
 
