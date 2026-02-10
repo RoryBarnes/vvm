@@ -1,0 +1,39 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: "Build docs"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        id: setup_python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        id: install
+        if: steps.setup_python.outcome == 'success'
+        run: pip install sphinx sphinx-rtd-theme
+
+      - name: Build
+        id: build
+        if: steps.install.outcome == 'success'
+        run: |
+          cd docs
+          make html
+          cp sphinx_rtd_theme/static/css/theme.css _build/html/_static/css/theme.css
+          touch _build/html/.nojekyll
+
+      - name: Publish
+        uses: JamesIves/github-pages-deploy-action@v4
+        if: steps.build.outcome == 'success' && github.event_name == 'push'
+        with:
+          branch: gh-pages
+          folder: docs/_build/html
