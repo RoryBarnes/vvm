@@ -1,0 +1,56 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck entrypoint
+        run: shellcheck -s bash entrypoint.sh
+
+      - name: hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+
+      - name: repos.conf validation
+        run: pytest tests/test_repos_conf.py -v
+
+      - name: Entrypoint unit tests
+        run: bats tests/test_entrypoint.bats
+
+      - name: Host script tests
+        run: bats tests/test_host_script.bats
+
+  docker:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Docker smoke tests
+        run: pytest tests/test_docker_build.py -v -m docker
+        timeout-minutes: 15
