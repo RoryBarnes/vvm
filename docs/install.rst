@@ -1,102 +1,147 @@
 Installation Guide
 ==================
 
-``VVM`` requires three tools on the host: **Docker**, a **Docker runtime**,
-and the **GitHub CLI** (``gh``). The installation differs between macOS and
-Linux because macOS needs a lightweight VM to run Linux containers.
+``VVM`` requires **Docker** and **git** on the host machine. macOS also
+requires a lightweight VM (Colima) to run Linux containers. No GitHub
+account or authentication is needed for the default installation.
+
+.. note::
+
+   A fresh ``VVM`` install takes approximately **30 minutes** on a typical
+   workstation. This includes installing Docker, building the container
+   image, cloning all repositories, and compiling the ``VPLanet`` C binary.
+   Subsequent starts take under a minute.
+
+Automated Install
+-----------------
+
+The ``install_vvm.sh`` script detects your operating system and package
+manager, installs all dependencies, clones ``VVM``, and creates a symlink
+so that ``vvm`` is available from any terminal. To use it:
+
+.. code-block:: bash
+
+    git clone https://github.com/RoryBarnes/vvm.git
+    cd vvm
+    sh install_vvm.sh
+
+The script supports macOS (MacPorts or Homebrew), Ubuntu/Debian, and
+Fedora/RHEL. If you prefer to install manually, follow the instructions
+below for your platform.
 
 macOS
 -----
 
-**1. Install Docker CLI, Colima, and GitHub CLI**
+**1. Install Docker CLI, Colima, and git**
 
 `Colima <https://github.com/abiosoft/colima>`_ provides a lightweight Docker
-daemon on macOS. The `GitHub CLI <https://cli.github.com/>`_ manages
-authentication securely via your OS keychain (see
-`Authentication and Security <security>`_ for details). Install via MacPorts:
+daemon on macOS. Install via MacPorts:
 
 .. code-block:: bash
 
-    sudo port install docker colima gh
+    sudo port install docker colima
 
 Or via Homebrew:
 
 .. code-block:: bash
 
-    brew install docker colima gh
+    brew install docker colima
 
 **2. Start Colima**
 
-Start the VM with one fewer CPU than your total core count:
+Start the VM and allocate CPU cores (total minus one is recommended):
 
 .. code-block:: bash
 
     colima start --cpu $(( $(sysctl -n hw.ncpu) - 1 )) --memory 8
 
 Colima runs a minimal Linux VM that starts in seconds and uses minimal
-resources when idle. You only need to run this once after each reboot.
+resources when idle. You only need to run this command once after each
+reboot.
 
 **3. Clone and install VVM**
 
 .. code-block:: bash
 
-    git clone https://github.com/VirtualPlanetaryLaboratory/vvm.git
+    git clone https://github.com/RoryBarnes/vvm.git
     cd vvm
     chmod +x vvm
     sudo ln -sf "$(pwd)/vvm" /opt/local/bin/vvm
 
-If using Homebrew, link to ``/usr/local/bin/vvm`` instead.
+If using Homebrew, link to ``$(brew --prefix)/bin/vvm`` instead.
 
-**4. Authenticate with GitHub and launch**
+**4. Launch**
 
 .. code-block:: bash
 
-    gh auth login
     vvm
 
-Choose **GitHub.com**, **HTTPS**, and **Login with a web browser** when
-prompted. ``VVM`` reads the token from ``gh``'s credential store at
-startup and passes it to the container via an ephemeral file that is
-never stored in environment variables or shell history. See
-`Authentication and Security <security>`_ for the full explanation.
+Linux (Ubuntu/Debian)
+---------------------
 
-Linux
------
+**1. Install Docker Engine**
 
-On Linux, Docker Engine provides the daemon natively. No VM is needed.
-
-**1. Install Docker Engine and GitHub CLI**
-
-Follow the official Docker instructions for your distribution at
-`docs.docker.com/engine/install <https://docs.docker.com/engine/install/>`_.
-
-On Ubuntu or Debian:
+Follow the official Docker instructions at
+`docs.docker.com/engine/install <https://docs.docker.com/engine/install/>`_,
+or run:
 
 .. code-block:: bash
 
     sudo apt-get update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io
+    sudo apt-get install -y ca-certificates curl gnupg
+    sudo install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
     sudo usermod -aG docker $USER
 
 Log out and back in for the group change to take effect.
-
-Install the GitHub CLI following `cli.github.com/manual/installation
-<https://cli.github.com/manual/installation>`_.
 
 **2. Clone and install VVM**
 
 .. code-block:: bash
 
-    git clone https://github.com/VirtualPlanetaryLaboratory/vvm.git
+    git clone https://github.com/RoryBarnes/vvm.git
     cd vvm
     chmod +x vvm
     sudo ln -sf "$(pwd)/vvm" /usr/local/bin/vvm
 
-**3. Authenticate with GitHub and launch**
+**3. Launch**
 
 .. code-block:: bash
 
-    gh auth login
+    vvm
+
+Linux (Fedora/RHEL)
+-------------------
+
+**1. Install Docker Engine**
+
+.. code-block:: bash
+
+    sudo dnf install -y dnf-plugins-core
+    sudo dnf config-manager --add-repo \
+        https://download.docker.com/linux/fedora/docker-ce.repo
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io
+    sudo systemctl enable --now docker
+    sudo usermod -aG docker $USER
+
+Log out and back in for the group change to take effect.
+
+**2. Clone and install VVM**
+
+.. code-block:: bash
+
+    git clone https://github.com/RoryBarnes/vvm.git
+    cd vvm
+    chmod +x vvm
+    sudo ln -sf "$(pwd)/vvm" /usr/local/bin/vvm
+
+**3. Launch**
+
+.. code-block:: bash
+
     vvm
 
 Verifying the Installation
@@ -109,8 +154,63 @@ is working:
 
     vplanet -v
     python -c "import vplanet; print(vplanet.__file__)"
-    pytest /workspace/vspace/tests/ -x
+    cd /workspace/vplanet && make test
 
-The first command confirms the native C binary is on PATH. The second
-confirms the Python package is importable. The third runs a test suite
-to verify the full toolchain.
+The first command confirms the native C binary is on ``PATH``. The second
+confirms the Python package is importable. The third runs the ``VPLanet``
+test suite.
+
+A verification script is also available inside the container:
+
+.. code-block:: bash
+
+    sh /workspace/verify_vvm.sh
+
+.. _private-repo-access:
+
+For vplanet-private Developers
+------------------------------
+
+If you are an authorized collaborator who needs access to the private
+``vplanet-private`` repository, you must also install the
+`GitHub CLI <https://cli.github.com/>`_ and authenticate before launching
+``VVM``.
+
+**1. Install the GitHub CLI**
+
+macOS (MacPorts): ``sudo port install gh``
+
+macOS (Homebrew): ``brew install gh``
+
+Ubuntu/Debian: follow `cli.github.com/manual/installation
+<https://cli.github.com/manual/installation>`_
+
+Fedora/RHEL: ``sudo dnf install gh``
+
+**2. Authenticate**
+
+.. code-block:: bash
+
+    gh auth login
+
+Choose **GitHub.com**, **HTTPS**, and **Login with a web browser** when
+prompted. ``VVM`` reads the token from ``gh``'s credential store at
+startup and passes it to the container via an ephemeral file. See
+:doc:`security` for the full explanation.
+
+**3. Launch VVM**
+
+.. code-block:: bash
+
+    vvm
+
+When credentials are present, ``VVM`` automatically clones
+``vplanet-private`` and builds the C binary from it instead of the
+public ``vplanet`` repository.
+
+.. note::
+
+   Direct push access to ``vplanet-private`` is being phased out in
+   favor of the public ``vplanet`` repository. New collaborators should
+   fork the public repository and submit pull requests through GitHub.
+   See :ref:`git-workflow` in the Usage guide.

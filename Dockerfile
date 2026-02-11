@@ -71,21 +71,15 @@ RUN pip install --no-cache-dir \
     "SALib>=1.4" \
     "argparse"
 
-# Node.js 20 LTS + Claude Code CLI
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm install -g @anthropic-ai/claude-code \
-    && mkdir -p /workspace
-
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
 RUN chmod +x /usr/local/bin/entrypoint.sh \
-    && git config --system advice.detachedHead false
+    && git config --system advice.detachedHead false \
+    && mkdir -p /workspace
 
 ENV WORKSPACE=/workspace
-ENV VPLANET_BINARY=/workspace/vplanet-private/bin/vplanet
-ENV PATH="/workspace/vplanet-private/bin:/workspace/MaxLEV:${PATH}"
+ENV VPLANET_BINARY=/workspace/vplanet/bin/vplanet
+ENV PATH="/workspace/vplanet/bin:/workspace/MaxLEV:${PATH}"
 ENV PYTHONPATH="/workspace/MaxLEV:${PYTHONPATH}"
 
 WORKDIR /workspace

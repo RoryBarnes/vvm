@@ -1,7 +1,7 @@
 Quick Start
 ===========
 
-Once Docker and ``VVM`` are installed (see `Installation Guide <install>`_),
+Once Docker and ``VVM`` are installed (see :doc:`install`),
 start the container with a single command:
 
 .. code-block:: bash
@@ -10,10 +10,10 @@ start the container with a single command:
 
 On first run, ``VVM``:
 
-1. Builds the Docker image (Ubuntu 22.04, Python 3.11, Node.js 20, all
+1. Builds the Docker image (Ubuntu 22.04, Python 3.11, all scientific
    dependencies)
 2. Creates a persistent Docker volume for the workspace
-3. Clones all 9 repositories from GitHub
+3. Clones all public repositories from GitHub
 4. Compiles the ``VPLanet`` C binary with ``-O3`` optimizations
 5. Installs all Python packages in editable mode
 6. Drops into an interactive bash shell at ``/workspace``
@@ -32,12 +32,12 @@ Example Session
     ==========================================
 
     [vvm] Syncing repositories...
-    [vvm] Updating vplanet-private...
+    [vvm] Updating vplanet...
     [vvm] Updating vplot...
     ...
     [vvm] All repositories synced.
-    [vvm] Building vplanet C binary...
-    [vvm] vplanet binary ready: /workspace/vplanet-private/bin/vplanet
+    [vvm] Building vplanet from public repository...
+    [vvm] vplanet binary ready: /workspace/vplanet/bin/vplanet
     [vvm] Installing Python packages...
     ...
 
@@ -46,18 +46,15 @@ Example Session
     ==========================================
       Python:    Python 3.11.x
       GCC:       gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
-      vplanet:   /workspace/vplanet-private/bin/vplanet
+      vplanet:   /workspace/vplanet/bin/vplanet
       Workspace: /workspace
-      Node.js:   v20.x.x
-      Claude:    1.x.x
       Cores:     9
     ==========================================
 
     root@vvm:/workspace#
 
-From here you can run simulations, execute tests, use ``claude`` for
-AI-assisted coding, commit code, and push to GitHub. The host filesystem
-is completely isolated.
+From here you can run simulations, execute tests, commit code, and push
+to GitHub. The host filesystem is completely isolated.
 
 Running a Command
 -----------------

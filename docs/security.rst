@@ -1,9 +1,16 @@
 Authentication and Security
 ===========================
 
-``VVM`` needs to clone private GitHub repositories into the container.
-This page explains how authentication works, why we chose this approach,
-and what to do if something goes wrong.
+.. note::
+
+   Authentication is only required for private repository access (such as
+   ``vplanet-private``). ``VVM`` works with all public repositories without
+   any credentials. If you only use public repositories, you can skip this
+   page entirely.
+
+If you need access to private GitHub repositories, ``VVM`` supports secure
+authentication via the GitHub CLI. This page explains how it works, why we
+chose this approach, and what to do if something goes wrong.
 
 How It Works
 ------------
@@ -23,6 +30,10 @@ When the container exits, the ``vvm`` script deletes the temporary file.
 If the script is interrupted (Ctrl+C, crash), a shell trap still runs
 the cleanup. The token is never stored in an environment variable, never
 appears in your shell history, and never shows up in ``docker inspect``.
+
+When no credentials are found, ``VVM`` rewrites GitHub URLs to use plain
+HTTPS (without a token). This allows all public repositories to be cloned
+normally. Only private repositories require authentication.
 
 Why Not SSH Keys?
 -----------------
@@ -103,16 +114,18 @@ this point, ``vvm`` reads the token automatically.
 Troubleshooting
 ---------------
 
-**"GitHub CLI not authenticated" warning on startup:**
+**"No GitHub credentials found" on startup:**
 
-Run ``gh auth login`` on the host (not inside the container). ``VVM``
-reads the token before starting Docker.
+This is normal if you have not authenticated with the GitHub CLI. ``VVM``
+will clone all public repositories and skip ``vplanet-private``. If you
+need private repo access, run ``gh auth login`` on the host (not inside
+the container).
 
 **"No GitHub credentials found" inside the container:**
 
 This means the token file was not mounted. On macOS with Colima, ensure
 Colima is sharing your home directory (this is the default). Verify with
-``colima list`` — the mount column should show ``~``.
+``colima list`` --- the mount column should show ``~``.
 
 **Token expired or revoked:**
 

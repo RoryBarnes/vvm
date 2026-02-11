@@ -86,15 +86,6 @@ class TestDockerBuild:
         result = fnDockerRun("gcc --version")
         assert result.returncode == 0
 
-    def test_node_available(self):
-        result = fnDockerRun("node --version")
-        assert result.returncode == 0
-        assert result.stdout.strip().startswith("v20")
-
-    def test_claude_available(self):
-        result = fnDockerRun("claude --version")
-        assert result.returncode == 0
-
     def test_make_available(self):
         result = fnDockerRun("make --version")
         assert result.returncode == 0
