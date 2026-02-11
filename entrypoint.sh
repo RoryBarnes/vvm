@@ -2,7 +2,7 @@
 
 WORKSPACE="${WORKSPACE:-/workspace}"
 REPOS_CONF="${REPOS_CONF:-/etc/vvm/repos.conf}"
-VPLANET_BINARY="${WORKSPACE}/vplanet-private/bin/vplanet"
+VPLANET_BINARY="${WORKSPACE}/vplanet/bin/vplanet"
 
 # ---------------------------------------------------------------------------
 # fnPrintBanner: Display startup header
@@ -32,9 +32,10 @@ fnConfigureGit() {
         git config --global url."https://${sToken}@github.com/".insteadOf \
             "git@github.com:"
     else
-        echo "[vvm] WARNING: No GitHub credentials found."
-        echo "[vvm]   Private repos may fail to clone."
-        echo "[vvm]   On host, run: gh auth login"
+        echo "[vvm] No GitHub credentials found. Public repos only."
+        echo "[vvm]   To access private repos, run on host: gh auth login"
+        git config --global url."https://github.com/".insteadOf \
+            "git@github.com:"
     fi
 }
 
@@ -69,7 +70,10 @@ fnCloneOrPull() {
 
     if [ ! -d "${sRepoPath}/.git" ]; then
         echo "[vvm] Cloning ${sName} (branch: ${sBranch})..."
-        git clone --branch "${sBranch}" "${sUrl}" "${sRepoPath}"
+        if ! git clone --branch "${sBranch}" "${sUrl}" "${sRepoPath}" 2>&1; then
+            echo "[vvm]   Clone failed for ${sName} (may require authentication)."
+            return 0
+        fi
         cd "${sRepoPath}"
         git fetch --tags origin
         cd "${WORKSPACE}"
@@ -109,17 +113,25 @@ fnSyncAllRepos() {
 # fnBuildVplanet: Compile the native C binary with optimizations
 # ---------------------------------------------------------------------------
 fnBuildVplanet() {
-    local sRepoPath="${WORKSPACE}/vplanet-private"
+    local sRepoPath=""
 
-    if [ ! -d "${sRepoPath}/src" ]; then
-        echo "[vvm] ERROR: vplanet-private source not found."
+    if [ -d "${WORKSPACE}/vplanet-private/src" ]; then
+        sRepoPath="${WORKSPACE}/vplanet-private"
+        echo "[vvm] Building vplanet from vplanet-private..."
+    elif [ -d "${WORKSPACE}/vplanet/src" ]; then
+        sRepoPath="${WORKSPACE}/vplanet"
+        echo "[vvm] Building vplanet from public repository..."
+    else
+        echo "[vvm] ERROR: No vplanet source found."
         return 1
     fi
 
-    echo "[vvm] Building vplanet C binary..."
     cd "${sRepoPath}"
     make opt
     cd "${WORKSPACE}"
+
+    VPLANET_BINARY="${sRepoPath}/bin/vplanet"
+    export PATH="${sRepoPath}/bin:${PATH}"
 
     if [ -x "${VPLANET_BINARY}" ]; then
         echo "[vvm] vplanet binary ready: ${VPLANET_BINARY}"
@@ -173,7 +185,9 @@ fnInstallAllRepos() {
 
     local iCount=${#REPO_NAMES[@]}
     for (( i=0; i<iCount; i++ )); do
-        fnInstallRepo "${REPO_NAMES[$i]}" "${REPO_METHODS[$i]}"
+        if [ -d "${WORKSPACE}/${REPO_NAMES[$i]}" ]; then
+            fnInstallRepo "${REPO_NAMES[$i]}" "${REPO_METHODS[$i]}"
+        fi
     done
 
     echo ""
@@ -200,8 +214,12 @@ fnPrintSummary() {
     echo "  GCC:       $(gcc --version | head -1)"
     echo "  vplanet:   ${VPLANET_BINARY}"
     echo "  Workspace: ${WORKSPACE}"
-    echo "  Node.js:   $(node --version 2>&1)"
-    echo "  Claude:    $(claude --version 2>&1 || echo 'not found')"
+    if command -v node > /dev/null 2>&1; then
+        echo "  Node.js:   $(node --version 2>&1)"
+    fi
+    if command -v claude > /dev/null 2>&1; then
+        echo "  Claude:    $(claude --version 2>&1)"
+    fi
     echo "  Cores:     $(nproc)"
     echo "=========================================="
     echo ""
@@ -213,7 +231,9 @@ fnPrintSummary() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -euo pipefail
     fnPrintBanner
-    fnPersistClaudeConfig
+    if command -v claude > /dev/null 2>&1; then
+        fnPersistClaudeConfig
+    fi
     fnConfigureGit
     fnParseReposConf
     fnSyncAllRepos
