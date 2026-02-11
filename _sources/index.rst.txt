@@ -3,14 +3,15 @@ VVM Documentation
 
 ``VVM`` (Virtual VPLanet Machine) is an isolated Docker container for the complete
 `VPLanet <https://github.com/VirtualPlanetaryLaboratory/vplanet>`_ development ecosystem.
-It packages all 9 repositories into a single, reproducible environment where code changes
+It packages all repositories into a single, reproducible environment where code changes
 cannot affect the host filesystem. A single ``vvm`` command starts the container, pulls
 the latest code from GitHub, compiles ``VPLanet``, installs all Python packages, and drops
 into a ready-to-use shell.
 
-``VVM`` is designed for safe, long-running AI-assisted coding sessions and multi-agent
-workflows. All repositories persist in a Docker named volume that is fully isolated from
-the host.
+No GitHub authentication is required for the default installation. All public
+repositories are cloned automatically. Authorized collaborators who need access
+to ``vplanet-private`` can optionally configure credentials (see
+:doc:`security`).
 
 .. toctree::
    :maxdepth: 1
@@ -32,8 +33,8 @@ Repositories
 
    * - Repository
      - Description
-   * - `vplanet-private <https://github.com/VirtualPlanetaryLaboratory/vplanet-private>`_
-     - VPLanet C source and Python package (branch: v3.0)
+   * - `vplanet <https://github.com/VirtualPlanetaryLaboratory/vplanet>`_
+     - VPLanet C source and Python package
    * - `vplot <https://github.com/VirtualPlanetaryLaboratory/vplot>`_
      - Plotting package for VPLanet output
    * - `vspace <https://github.com/VirtualPlanetaryLaboratory/vspace>`_
@@ -48,5 +49,5 @@ Repositories
      - Interface for Bayesian inference
    * - `MaxLEV <https://github.com/RoryBarnes/MaxLEV>`_
      - Maximum likelihood estimator
-   * - `vplanet <https://github.com/VirtualPlanetaryLaboratory/vplanet>`_
-     - Public VPLanet (reference copy)
+   * - `vplanet-private <https://github.com/VirtualPlanetaryLaboratory/vplanet-private>`_
+     - VPLanet development branch (authorized collaborators only)

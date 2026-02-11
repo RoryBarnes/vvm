@@ -32,6 +32,7 @@
           
           <a href="index.html" class="icon icon-home">
             VVM
+              <img src="_static/VPLanetLogo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -83,9 +84,16 @@
              
   <section id="authentication-and-security">
 <h1>Authentication and Security<a class="headerlink" href="#authentication-and-security" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> needs to clone private GitHub repositories into the container.
-This page explains how authentication works, why we chose this approach,
-and what to do if something goes wrong.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Authentication is only required for private repository access (such as
+<code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code>). <code class="docutils literal notranslate"><span class="pre">VVM</span></code> works with all public repositories without
+any credentials. If you only use public repositories, you can skip this
+page entirely.</p>
+</div>
+<p>If you need access to private GitHub repositories, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> supports secure
+authentication via the GitHub CLI. This page explains how it works, why we
+chose this approach, and what to do if something goes wrong.</p>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
 <p>When you run <code class="docutils literal notranslate"><span class="pre">vvm</span></code> on the host, four things happen:</p>
@@ -103,6 +111,9 @@ use HTTPS with the token for all GitHub URLs.</p></li>
 If the script is interrupted (Ctrl+C, crash), a shell trap still runs
 the cleanup. The token is never stored in an environment variable, never
 appears in your shell history, and never shows up in <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">inspect</span></code>.</p>
+<p>When no credentials are found, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> rewrites GitHub URLs to use plain
+HTTPS (without a token). This allows all public repositories to be cloned
+normally. Only private repositories require authentication.</p>
 </section>
 <section id="why-not-ssh-keys">
 <h2>Why Not SSH Keys?<a class="headerlink" href="#why-not-ssh-keys" title="Link to this heading"></a></h2>
@@ -171,9 +182,11 @@ this point, <code class="docutils literal notranslate"><span class="pre">vvm</sp
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
-<p><strong>“GitHub CLI not authenticated” warning on startup:</strong></p>
-<p>Run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host (not inside the container). <code class="docutils literal notranslate"><span class="pre">VVM</span></code>
-reads the token before starting Docker.</p>
+<p><strong>“No GitHub credentials found” on startup:</strong></p>
+<p>This is normal if you have not authenticated with the GitHub CLI. <code class="docutils literal notranslate"><span class="pre">VVM</span></code>
+will clone all public repositories and skip <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code>. If you
+need private repo access, run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host (not inside
+the container).</p>
 <p><strong>“No GitHub credentials found” inside the container:</strong></p>
 <p>This means the token file was not mounted. On macOS with Colima, ensure
 Colima is sharing your home directory (this is the default). Verify with

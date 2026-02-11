@@ -32,6 +32,7 @@
           
           <a href="#" class="icon icon-home">
             VVM
+              <img src="_static/VPLanetLogo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -77,13 +78,14 @@
 <h1>VVM Documentation<a class="headerlink" href="#vvm-documentation" title="Link to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> (Virtual VPLanet Machine) is an isolated Docker container for the complete
 <a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet">VPLanet</a> development ecosystem.
-It packages all 9 repositories into a single, reproducible environment where code changes
+It packages all repositories into a single, reproducible environment where code changes
 cannot affect the host filesystem. A single <code class="docutils literal notranslate"><span class="pre">vvm</span></code> command starts the container, pulls
 the latest code from GitHub, compiles <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code>, installs all Python packages, and drops
 into a ready-to-use shell.</p>
-<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> is designed for safe, long-running AI-assisted coding sessions and multi-agent
-workflows. All repositories persist in a Docker named volume that is fully isolated from
-the host.</p>
+<p>No GitHub authentication is required for the default installation. All public
+repositories are cloned automatically. Authorized collaborators who need access
+to <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> can optionally configure credentials (see
+<a class="reference internal" href="security.html"><span class="doc">Authentication and Security</span></a>).</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
@@ -107,8 +109,8 @@ the host.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet-private">vplanet-private</a></p></td>
-<td><p>VPLanet C source and Python package (branch: v3.0)</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet">vplanet</a></p></td>
+<td><p>VPLanet C source and Python package</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplot">vplot</a></p></td>
 <td><p>Plotting package for VPLanet output</p></td>
@@ -131,8 +133,8 @@ the host.</p>
 <tr class="row-odd"><td><p><a class="reference external" href="https://github.com/RoryBarnes/MaxLEV">MaxLEV</a></p></td>
 <td><p>Maximum likelihood estimator</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet">vplanet</a></p></td>
-<td><p>Public VPLanet (reference copy)</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/VirtualPlanetaryLaboratory/vplanet-private">vplanet-private</a></p></td>
+<td><p>VPLanet development branch (authorized collaborators only)</p></td>
 </tr>
 </tbody>
 </table>

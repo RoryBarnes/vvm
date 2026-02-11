@@ -33,6 +33,7 @@
           
           <a href="index.html" class="icon icon-home">
             VVM
+              <img src="_static/VPLanetLogo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -44,9 +45,12 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#automated-install">Automated Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#macos">macOS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#linux">Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linux-ubuntu-debian">Linux (Ubuntu/Debian)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linux-fedora-rhel">Linux (Fedora/RHEL)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verifying-the-installation">Verifying the Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-vplanet-private-developers">For vplanet-private Developers</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
@@ -81,73 +85,113 @@
              
   <section id="installation-guide">
 <h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> requires three tools on the host: <strong>Docker</strong>, a <strong>Docker runtime</strong>,
-and the <strong>GitHub CLI</strong> (<code class="docutils literal notranslate"><span class="pre">gh</span></code>). The installation differs between macOS and
-Linux because macOS needs a lightweight VM to run Linux containers.</p>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> requires <strong>Docker</strong> and <strong>git</strong> on the host machine. macOS also
+requires a lightweight VM (Colima) to run Linux containers. No GitHub
+account or authentication is needed for the default installation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A fresh <code class="docutils literal notranslate"><span class="pre">VVM</span></code> install takes approximately <strong>30 minutes</strong> on a typical
+workstation. This includes installing Docker, building the container
+image, cloning all repositories, and compiling the <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> C binary.
+Subsequent starts take under a minute.</p>
+</div>
+<section id="automated-install">
+<h2>Automated Install<a class="headerlink" href="#automated-install" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">install_vvm.sh</span></code> script detects your operating system and package
+manager, installs all dependencies, clones <code class="docutils literal notranslate"><span class="pre">VVM</span></code>, and creates a symlink
+so that <code class="docutils literal notranslate"><span class="pre">vvm</span></code> is available from any terminal. To use it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
+<span class="nb">cd</span><span class="w"> </span>vvm
+sh<span class="w"> </span>install_vvm.sh
+</pre></div>
+</div>
+<p>The script supports macOS (MacPorts or Homebrew), Ubuntu/Debian, and
+Fedora/RHEL. If you prefer to install manually, follow the instructions
+below for your platform.</p>
+</section>
 <section id="macos">
 <h2>macOS<a class="headerlink" href="#macos" title="Link to this heading"></a></h2>
-<p><strong>1. Install Docker CLI, Colima, and GitHub CLI</strong></p>
+<p><strong>1. Install Docker CLI, Colima, and git</strong></p>
 <p><a class="reference external" href="https://github.com/abiosoft/colima">Colima</a> provides a lightweight Docker
-daemon on macOS. The <a class="reference external" href="https://cli.github.com/">GitHub CLI</a> manages
-authentication securely via your OS keychain (see
-<a class="reference external" href="security">Authentication and Security</a> for details). Install via MacPorts:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>gh
+daemon on macOS. Install via MacPorts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima
 </pre></div>
 </div>
 <p>Or via Homebrew:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>gh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima
 </pre></div>
 </div>
 <p><strong>2. Start Colima</strong></p>
-<p>Start the VM with one fewer CPU than your total core count:</p>
+<p>Start the VM and allocate CPU cores (total minus one is recommended):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>
 </pre></div>
 </div>
 <p>Colima runs a minimal Linux VM that starts in seconds and uses minimal
-resources when idle. You only need to run this once after each reboot.</p>
+resources when idle. You only need to run this command once after each
+reboot.</p>
 <p><strong>3. Clone and install VVM</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/VirtualPlanetaryLaboratory/vvm.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
 <span class="nb">cd</span><span class="w"> </span>vvm
 chmod<span class="w"> </span>+x<span class="w"> </span>vvm
 sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/vvm&quot;</span><span class="w"> </span>/opt/local/bin/vvm
 </pre></div>
 </div>
-<p>If using Homebrew, link to <code class="docutils literal notranslate"><span class="pre">/usr/local/bin/vvm</span></code> instead.</p>
-<p><strong>4. Authenticate with GitHub and launch</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
-vvm
+<p>If using Homebrew, link to <code class="docutils literal notranslate"><span class="pre">$(brew</span> <span class="pre">--prefix)/bin/vvm</span></code> instead.</p>
+<p><strong>4. Launch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm
 </pre></div>
 </div>
-<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong>, and <strong>Login with a web browser</strong> when
-prompted. <code class="docutils literal notranslate"><span class="pre">VVM</span></code> reads the token from <code class="docutils literal notranslate"><span class="pre">gh</span></code>’s credential store at
-startup and passes it to the container via an ephemeral file that is
-never stored in environment variables or shell history. See
-<a class="reference external" href="security">Authentication and Security</a> for the full explanation.</p>
 </section>
-<section id="linux">
-<h2>Linux<a class="headerlink" href="#linux" title="Link to this heading"></a></h2>
-<p>On Linux, Docker Engine provides the daemon natively. No VM is needed.</p>
-<p><strong>1. Install Docker Engine and GitHub CLI</strong></p>
-<p>Follow the official Docker instructions for your distribution at
-<a class="reference external" href="https://docs.docker.com/engine/install/">docs.docker.com/engine/install</a>.</p>
-<p>On Ubuntu or Debian:</p>
+<section id="linux-ubuntu-debian">
+<h2>Linux (Ubuntu/Debian)<a class="headerlink" href="#linux-ubuntu-debian" title="Link to this heading"></a></h2>
+<p><strong>1. Install Docker Engine</strong></p>
+<p>Follow the official Docker instructions at
+<a class="reference external" href="https://docs.docker.com/engine/install/">docs.docker.com/engine/install</a>,
+or run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
-sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>docker-ce<span class="w"> </span>docker-ce-cli<span class="w"> </span>containerd.io
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ca-certificates<span class="w"> </span>curl<span class="w"> </span>gnupg
+sudo<span class="w"> </span>install<span class="w"> </span>-m<span class="w"> </span><span class="m">0755</span><span class="w"> </span>-d<span class="w"> </span>/etc/apt/keyrings
+curl<span class="w"> </span>-fsSL<span class="w"> </span>https://download.docker.com/linux/ubuntu/gpg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>gpg<span class="w"> </span>--dearmor<span class="w"> </span>-o<span class="w"> </span>/etc/apt/keyrings/docker.gpg
+sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>docker-ce<span class="w"> </span>docker-ce-cli<span class="w"> </span>containerd.io
 sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
 </pre></div>
 </div>
 <p>Log out and back in for the group change to take effect.</p>
-<p>Install the GitHub CLI following <a class="reference external" href="https://cli.github.com/manual/installation">cli.github.com/manual/installation</a>.</p>
 <p><strong>2. Clone and install VVM</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/VirtualPlanetaryLaboratory/vvm.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
 <span class="nb">cd</span><span class="w"> </span>vvm
 chmod<span class="w"> </span>+x<span class="w"> </span>vvm
 sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/vvm&quot;</span><span class="w"> </span>/usr/local/bin/vvm
 </pre></div>
 </div>
-<p><strong>3. Authenticate with GitHub and launch</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
-vvm
+<p><strong>3. Launch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm
+</pre></div>
+</div>
+</section>
+<section id="linux-fedora-rhel">
+<h2>Linux (Fedora/RHEL)<a class="headerlink" href="#linux-fedora-rhel" title="Link to this heading"></a></h2>
+<p><strong>1. Install Docker Engine</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>dnf-plugins-core
+sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--add-repo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://download.docker.com/linux/fedora/docker-ce.repo
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>docker-ce<span class="w"> </span>docker-ce-cli<span class="w"> </span>containerd.io
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>docker
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+</pre></div>
+</div>
+<p>Log out and back in for the group change to take effect.</p>
+<p><strong>2. Clone and install VVM</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
+<span class="nb">cd</span><span class="w"> </span>vvm
+chmod<span class="w"> </span>+x<span class="w"> </span>vvm
+sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/vvm&quot;</span><span class="w"> </span>/usr/local/bin/vvm
+</pre></div>
+</div>
+<p><strong>3. Launch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm
 </pre></div>
 </div>
 </section>
@@ -157,12 +201,50 @@ vvm
 is working:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vplanet<span class="w"> </span>-v
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import vplanet; print(vplanet.__file__)&quot;</span>
-pytest<span class="w"> </span>/workspace/vspace/tests/<span class="w"> </span>-x
+<span class="nb">cd</span><span class="w"> </span>/workspace/vplanet<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
-<p>The first command confirms the native C binary is on PATH. The second
-confirms the Python package is importable. The third runs a test suite
-to verify the full toolchain.</p>
+<p>The first command confirms the native C binary is on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>. The second
+confirms the Python package is importable. The third runs the <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code>
+test suite.</p>
+<p>A verification script is also available inside the container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>/workspace/verify_vvm.sh
+</pre></div>
+</div>
+</section>
+<section id="for-vplanet-private-developers">
+<span id="private-repo-access"></span><h2>For vplanet-private Developers<a class="headerlink" href="#for-vplanet-private-developers" title="Link to this heading"></a></h2>
+<p>If you are an authorized collaborator who needs access to the private
+<code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> repository, you must also install the
+<a class="reference external" href="https://cli.github.com/">GitHub CLI</a> and authenticate before launching
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code>.</p>
+<p><strong>1. Install the GitHub CLI</strong></p>
+<p>macOS (MacPorts): <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">port</span> <span class="pre">install</span> <span class="pre">gh</span></code></p>
+<p>macOS (Homebrew): <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gh</span></code></p>
+<p>Ubuntu/Debian: follow <a class="reference external" href="https://cli.github.com/manual/installation">cli.github.com/manual/installation</a></p>
+<p>Fedora/RHEL: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">dnf</span> <span class="pre">install</span> <span class="pre">gh</span></code></p>
+<p><strong>2. Authenticate</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>login
+</pre></div>
+</div>
+<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong>, and <strong>Login with a web browser</strong> when
+prompted. <code class="docutils literal notranslate"><span class="pre">VVM</span></code> reads the token from <code class="docutils literal notranslate"><span class="pre">gh</span></code>’s credential store at
+startup and passes it to the container via an ephemeral file. See
+<a class="reference internal" href="security.html"><span class="doc">Authentication and Security</span></a> for the full explanation.</p>
+<p><strong>3. Launch VVM</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm
+</pre></div>
+</div>
+<p>When credentials are present, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> automatically clones
+<code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> and builds the C binary from it instead of the
+public <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> repository.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Direct push access to <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> is being phased out in
+favor of the public <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> repository. New collaborators should
+fork the public repository and submit pull requests through GitHub.
+See <a class="reference internal" href="usage.html#git-workflow"><span class="std std-ref">Git Workflow</span></a> in the Usage guide.</p>
+</div>
 </section>
 </section>
 

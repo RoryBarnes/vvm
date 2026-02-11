@@ -33,6 +33,7 @@
           
           <a href="index.html" class="icon icon-home">
             VVM
+              <img src="_static/VPLanetLogo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -80,17 +81,17 @@
              
   <section id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h1>
-<p>Once Docker and <code class="docutils literal notranslate"><span class="pre">VVM</span></code> are installed (see <a class="reference external" href="install">Installation Guide</a>),
+<p>Once Docker and <code class="docutils literal notranslate"><span class="pre">VVM</span></code> are installed (see <a class="reference internal" href="install.html"><span class="doc">Installation Guide</span></a>),
 start the container with a single command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm
 </pre></div>
 </div>
 <p>On first run, <code class="docutils literal notranslate"><span class="pre">VVM</span></code>:</p>
 <ol class="arabic simple">
-<li><p>Builds the Docker image (Ubuntu 22.04, Python 3.11, Node.js 20, all
+<li><p>Builds the Docker image (Ubuntu 22.04, Python 3.11, all scientific
 dependencies)</p></li>
 <li><p>Creates a persistent Docker volume for the workspace</p></li>
-<li><p>Clones all 9 repositories from GitHub</p></li>
+<li><p>Clones all public repositories from GitHub</p></li>
 <li><p>Compiles the <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> C binary with <code class="docutils literal notranslate"><span class="pre">-O3</span></code> optimizations</p></li>
 <li><p>Installs all Python packages in editable mode</p></li>
 <li><p>Drops into an interactive bash shell at <code class="docutils literal notranslate"><span class="pre">/workspace</span></code></p></li>
@@ -105,12 +106,12 @@ package installations. This typically takes under a minute.</p>
 <span class="o">==========================================</span>
 
 <span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Syncing<span class="w"> </span>repositories...
-<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Updating<span class="w"> </span>vplanet-private...
+<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Updating<span class="w"> </span>vplanet...
 <span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Updating<span class="w"> </span>vplot...
 ...
 <span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>All<span class="w"> </span>repositories<span class="w"> </span>synced.
-<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Building<span class="w"> </span>vplanet<span class="w"> </span>C<span class="w"> </span>binary...
-<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>vplanet<span class="w"> </span>binary<span class="w"> </span>ready:<span class="w"> </span>/workspace/vplanet-private/bin/vplanet
+<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Building<span class="w"> </span>vplanet<span class="w"> </span>from<span class="w"> </span>public<span class="w"> </span>repository...
+<span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>vplanet<span class="w"> </span>binary<span class="w"> </span>ready:<span class="w"> </span>/workspace/vplanet/bin/vplanet
 <span class="o">[</span>vvm<span class="o">]</span><span class="w"> </span>Installing<span class="w"> </span>Python<span class="w"> </span>packages...
 ...
 
@@ -119,19 +120,16 @@ package installations. This typically takes under a minute.</p>
 <span class="o">==========================================</span>
 <span class="w">  </span>Python:<span class="w">    </span>Python<span class="w"> </span><span class="m">3</span>.11.x
 <span class="w">  </span>GCC:<span class="w">       </span>gcc<span class="w"> </span><span class="o">(</span>Ubuntu<span class="w"> </span><span class="m">11</span>.4.0-1ubuntu1~22.04<span class="o">)</span><span class="w"> </span><span class="m">11</span>.4.0
-<span class="w">  </span>vplanet:<span class="w">   </span>/workspace/vplanet-private/bin/vplanet
+<span class="w">  </span>vplanet:<span class="w">   </span>/workspace/vplanet/bin/vplanet
 <span class="w">  </span>Workspace:<span class="w"> </span>/workspace
-<span class="w">  </span>Node.js:<span class="w">   </span>v20.x.x
-<span class="w">  </span>Claude:<span class="w">    </span><span class="m">1</span>.x.x
 <span class="w">  </span>Cores:<span class="w">     </span><span class="nv">9</span>
 <span class="o">==========================================</span>
 
 root@vvm:/workspace#
 </pre></div>
 </div>
-<p>From here you can run simulations, execute tests, use <code class="docutils literal notranslate"><span class="pre">claude</span></code> for
-AI-assisted coding, commit code, and push to GitHub. The host filesystem
-is completely isolated.</p>
+<p>From here you can run simulations, execute tests, commit code, and push
+to GitHub. The host filesystem is completely isolated.</p>
 </section>
 <section id="running-a-command">
 <h2>Running a Command<a class="headerlink" href="#running-a-command" title="Link to this heading"></a></h2>

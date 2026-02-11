@@ -33,6 +33,7 @@
           
           <a href="index.html" class="icon icon-home">
             VVM
+              <img src="_static/VPLanetLogo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -50,9 +51,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#workspace-layout">Workspace Layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#persistence">Persistence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#branch-management">Branch Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#git-workflow">Git Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#repos-conf">repos.conf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#claude-code">Claude Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#claude-code-optional">Claude Code (Optional)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#resource-allocation">Resource Allocation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
@@ -103,33 +105,33 @@ vvm<span class="w"> </span>--help<span class="w">            </span><span class=
 <h2>Workspace Layout<a class="headerlink" href="#workspace-layout" title="Link to this heading"></a></h2>
 <p>Inside the container, <code class="docutils literal notranslate"><span class="pre">/workspace</span></code> contains all repositories:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/workspace/
-<span class="w">  </span>vplanet-private/<span class="w">    </span><span class="c1"># VPLanet C source and Python package (branch: v3.0)</span>
-<span class="w">  </span>vplot/<span class="w">              </span><span class="c1"># Plotting package for VPLanet output</span>
-<span class="w">  </span>vspace/<span class="w">             </span><span class="c1"># Parameter sweep generator</span>
-<span class="w">  </span>bigplanet/<span class="w">          </span><span class="c1"># HDF5 compression and analysis</span>
-<span class="w">  </span>multi-planet/<span class="w">       </span><span class="c1"># Multi-core simulation runner</span>
-<span class="w">  </span>alabi/<span class="w">              </span><span class="c1"># Machine learning posterior inference</span>
-<span class="w">  </span>vplanet_inference/<span class="w">  </span><span class="c1"># Interface for Bayesian inference</span>
-<span class="w">  </span>MaxLEV/<span class="w">             </span><span class="c1"># Maximum likelihood estimator</span>
-<span class="w">  </span>vplanet/<span class="w">            </span><span class="c1"># Public VPLanet (reference copy)</span>
+<span class="w">  </span>vplanet/<span class="w">              </span><span class="c1"># VPLanet C source and Python package</span>
+<span class="w">  </span>vplot/<span class="w">                </span><span class="c1"># Plotting package for VPLanet output</span>
+<span class="w">  </span>vspace/<span class="w">               </span><span class="c1"># Parameter sweep generator</span>
+<span class="w">  </span>bigplanet/<span class="w">            </span><span class="c1"># HDF5 compression and analysis</span>
+<span class="w">  </span>multi-planet/<span class="w">         </span><span class="c1"># Multi-core simulation runner</span>
+<span class="w">  </span>alabi/<span class="w">                </span><span class="c1"># Machine learning posterior inference</span>
+<span class="w">  </span>vplanet_inference/<span class="w">    </span><span class="c1"># Interface for Bayesian inference</span>
+<span class="w">  </span>MaxLEV/<span class="w">               </span><span class="c1"># Maximum likelihood estimator</span>
+<span class="w">  </span>vplanet-private/<span class="w">      </span><span class="c1"># Development branch (if authenticated)</span>
 </pre></div>
 </div>
-<p>The native <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> binary is on PATH at
-<code class="docutils literal notranslate"><span class="pre">/workspace/vplanet-private/bin/vplanet</span></code>. Standard development commands
-work as expected:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vplanet<span class="w"> </span>-v<span class="w">                            </span><span class="c1"># Check VPLanet version</span>
-<span class="nb">cd</span><span class="w"> </span>/workspace/vspace<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w">        </span><span class="c1"># Run vspace tests</span>
-git<span class="w"> </span>status<span class="w">                            </span><span class="c1"># Check repo state</span>
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Fix bug&quot;</span><span class="w">               </span><span class="c1"># Commit changes</span>
-git<span class="w"> </span>push<span class="w">                              </span><span class="c1"># Push to GitHub</span>
+<p>The native <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> binary is on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> at
+<code class="docutils literal notranslate"><span class="pre">/workspace/vplanet/bin/vplanet</span></code>. If <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> is available,
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> builds from it instead and the binary path updates accordingly.</p>
+<p>Standard development commands work as expected:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vplanet<span class="w"> </span>-v<span class="w">                                  </span><span class="c1"># Check VPLanet version</span>
+<span class="nb">cd</span><span class="w"> </span>/workspace/vplanet<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="nb">test</span><span class="w">          </span><span class="c1"># Run VPLanet tests</span>
+<span class="nb">cd</span><span class="w"> </span>/workspace/vspace<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w"> </span>tests/<span class="w"> </span>-x<span class="w">    </span><span class="c1"># Run vspace tests</span>
+git<span class="w"> </span>status<span class="w">                                  </span><span class="c1"># Check repo state</span>
 </pre></div>
 </div>
 </section>
 <section id="persistence">
 <h2>Persistence<a class="headerlink" href="#persistence" title="Link to this heading"></a></h2>
 <p>Repositories persist in a Docker named volume (<code class="docutils literal notranslate"><span class="pre">vvm-workspace</span></code>) across
-container restarts. Cloned repos, local commits, and branch checkouts all
-survive between sessions. Only <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--destroy</span></code> removes the volume.</p>
+container restarts. <em>Cloned repos, local commits, and branch checkouts all
+survive between sessions.</em> Only <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--destroy</span></code> removes the volume.</p>
 <p>The container itself is ephemeral (<code class="docutils literal notranslate"><span class="pre">--rm</span></code>). No container state persists
 outside the volume.</p>
 </section>
@@ -137,13 +139,46 @@ outside the volume.</p>
 <h2>Branch Management<a class="headerlink" href="#branch-management" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> clones the default branch for each repository on first run (see
 <code class="docutils literal notranslate"><span class="pre">repos.conf</span></code>). You can switch branches freely inside the container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet-private
-git<span class="w"> </span>checkout<span class="w"> </span>ClimaGrid
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet
+git<span class="w"> </span>checkout<span class="w"> </span>my-feature-branch
 </pre></div>
 </div>
 <p>On subsequent starts, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> pulls the branch you are currently on. If you
 have switched away from the default branch, <code class="docutils literal notranslate"><span class="pre">VVM</span></code> skips the pull and
 prints a message.</p>
+</section>
+<section id="git-workflow">
+<span id="id1"></span><h2>Git Workflow<a class="headerlink" href="#git-workflow" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> supports two workflows depending on your level of access.</p>
+<p><strong>Standard workflow (fork and pull request):</strong></p>
+<p>Most collaborators should fork the public repository on GitHub and submit
+changes via pull request. Inside the container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet
+git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>myfork<span class="w"> </span>https://github.com/YOUR_USERNAME/vplanet.git
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>my-feature
+<span class="c1"># ... make changes ...</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Description of changes&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>myfork<span class="w"> </span>my-feature
+</pre></div>
+</div>
+<p>Then open a pull request on GitHub from your fork’s branch to the main
+repository. This is the standard open-source contribution workflow and
+requires no special permissions.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You only need to add your fork as a remote once. The remote persists
+in the workspace volume across container restarts.</p>
+</div>
+<p><strong>Direct push (vplanet-private developers only):</strong></p>
+<p>Authorized collaborators with write access to <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> can push
+directly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet-private
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>my-branch
+</pre></div>
+</div>
+<p>This requires GitHub CLI authentication (see <a class="reference internal" href="install.html#private-repo-access"><span class="std std-ref">For vplanet-private Developers</span></a>).
+Direct push access is being deprecated in favor of the fork and pull
+request workflow described above.</p>
 </section>
 <section id="repos-conf">
 <h2>repos.conf<a class="headerlink" href="#repos-conf" title="Link to this heading"></a></h2>
@@ -216,20 +251,29 @@ your host credentials, so <code class="docutils literal notranslate"><span class
 <p>Both options install the Python and C/C++ extensions inside the container
 automatically.</p>
 </section>
-<section id="claude-code">
-<h2>Claude Code<a class="headerlink" href="#claude-code" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> is
-pre-installed in the container. On first use, authenticate with your
-Anthropic API key:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>claude
+<section id="claude-code-optional">
+<h2>Claude Code (Optional)<a class="headerlink" href="#claude-code-optional" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> is an
+AI coding assistant that can be installed inside the container for
+interactive development sessions. It is not included in the default image.</p>
+<p>To install Claude Code manually inside a running container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://deb.nodesource.com/setup_20.x<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash<span class="w"> </span>-
+apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>nodejs
+npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>@anthropic-ai/claude-code
 </pre></div>
 </div>
-<p>Claude Code prompts for the key interactively. The key and all Claude
-Code configuration persist in the workspace volume at
-<code class="docutils literal notranslate"><span class="pre">/workspace/.claude/</span></code>, so you only need to authenticate once. The key
-is never stored on the host.</p>
+<p>To persist the configuration across container restarts, create a symlink
+before first use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/workspace/.claude
+ln<span class="w"> </span>-sfn<span class="w"> </span>/workspace/.claude<span class="w"> </span>/root/.claude
+claude
+</pre></div>
+</div>
+<p>Claude Code prompts for your Anthropic API key interactively. The key and
+configuration persist in the workspace volume at <code class="docutils literal notranslate"><span class="pre">/workspace/.claude/</span></code>,
+so you only need to authenticate once.</p>
 <p>To start Claude Code in a specific repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet-private
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet
 claude
 </pre></div>
 </div>
@@ -242,29 +286,83 @@ total core count. Memory is managed by Colima on macOS (set via
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p>This section covers common issues you may encounter. If you are new to
+Docker, see the <span class="xref std std-ref">what-is-docker</span> note below.</p>
 <p><strong>Docker daemon is not running (macOS):</strong></p>
+<p>Docker on macOS runs inside a lightweight virtual machine called Colima.
+If you see this error, Colima needs to be started:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>
 </pre></div>
 </div>
+<p>You need to run this once after each reboot. Colima stays running in the
+background until you shut down your computer.</p>
 <p><strong>Docker daemon is not running (Linux):</strong></p>
+<p>The Docker service needs to be started:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>docker
 </pre></div>
 </div>
-<p><strong>Private repo clone fails:</strong></p>
-<p>Ensure the GitHub CLI is authenticated: <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code>. Verify
-with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">status</span></code>.</p>
+<p>To make Docker start automatically on boot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>docker
+</pre></div>
+</div>
+<p><strong>Permission denied when running Docker (Linux):</strong></p>
+<p>Your user account needs to be in the <code class="docutils literal notranslate"><span class="pre">docker</span></code> group:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+</pre></div>
+</div>
+<p>Log out and back in for this to take effect.</p>
+<p><strong>Repository clone fails:</strong></p>
+<p>If a public repository fails to clone, check your internet connection and
+firewall settings. <code class="docutils literal notranslate"><span class="pre">VVM</span></code> clones from <code class="docutils literal notranslate"><span class="pre">github.com</span></code> via HTTPS, so port
+443 must be open.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">vplanet-private</span></code> fails to clone, this is expected for users without
+access to the private repository. <code class="docutils literal notranslate"><span class="pre">VVM</span></code> will continue with the public
+<code class="docutils literal notranslate"><span class="pre">vplanet</span></code> repository instead. If you should have access, see
+<a class="reference internal" href="install.html#private-repo-access"><span class="std std-ref">For vplanet-private Developers</span></a>.</p>
+<p><strong>VPLanet build fails:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code> C binary requires <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and <code class="docutils literal notranslate"><span class="pre">make</span></code>, which are included
+in the container image. If the build fails, the most common cause is a
+corrupted repository. Try starting fresh:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm<span class="w"> </span>--destroy
+vvm
+</pre></div>
+</div>
 <p><strong>Pull skipped for a repository:</strong></p>
 <p>This means you have local commits that have diverged from the remote.
-<code class="docutils literal notranslate"><span class="pre">VVM</span></code> uses <code class="docutils literal notranslate"><span class="pre">--ff-only</span></code> to avoid data loss. Resolve manually with
-<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span></code> inside the container.</p>
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> uses <code class="docutils literal notranslate"><span class="pre">--ff-only</span></code> pulls to avoid overwriting your work. To update
+manually:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/workspace/vplanet
+git<span class="w"> </span>pull<span class="w"> </span>--rebase
+</pre></div>
+</div>
 <p><strong>Image rebuild needed after editing repos.conf:</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> detects changes to <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>, <code class="docutils literal notranslate"><span class="pre">entrypoint.sh</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">repos.conf</span></code> and rebuilds automatically. To force a full rebuild:
 <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--build</span></code>.</p>
+<p><strong>Container uses too much memory:</strong></p>
+<p>On macOS, Colima’s memory limit is set at startup. To increase it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>stop
+colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">16</span>
+</pre></div>
+</div>
+<p>On Linux, Docker uses host memory directly. If the container is consuming
+too much memory, close other applications or increase your swap space.</p>
 <p><strong>Starting fresh:</strong></p>
+<p>To remove all cloned repositories and start over:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm<span class="w"> </span>--destroy
 vvm
 </pre></div>
+</div>
+<div class="admonition note" id="what-is-docker">
+<p class="admonition-title">Note</p>
+<p><strong>What is Docker?</strong></p>
+<p>Docker is a tool that creates isolated environments called
+“containers.” A container is like a lightweight virtual machine: it has
+its own operating system, files, and installed software, completely
+separate from your computer. VVM uses Docker to ensure that everyone
+gets the same development environment regardless of what operating
+system or software versions they have on their own machine. Nothing
+that happens inside the container can affect your computer’s files.</p>
 </div>
 </section>
 </section>
