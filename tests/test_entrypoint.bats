@@ -156,3 +156,38 @@ CONF
 
     [ "${#REPO_NAMES[@]}" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# fnCloneOrPull failure tolerance
+# ---------------------------------------------------------------------------
+
+@test "fnCloneOrPull: returns 0 on clone failure" {
+    run fnCloneOrPull "nonexistent" "https://github.com/invalid/repo.git" "main"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "Clone failed" ]]
+}
+
+# ---------------------------------------------------------------------------
+# fnConfigureGit HTTPS fallback
+# ---------------------------------------------------------------------------
+
+@test "fnConfigureGit: rewrites SSH to HTTPS without token" {
+    fnConfigureGit
+
+    local sRewrite
+    sRewrite=$(git config --global --get "url.https://github.com/.insteadOf" || true)
+    [ "${sRewrite}" = "git@github.com:" ]
+}
+
+# ---------------------------------------------------------------------------
+# fnInstallAllRepos skips missing repos
+# ---------------------------------------------------------------------------
+
+@test "fnInstallAllRepos: skips repos that were not cloned" {
+    fnParseReposConf
+
+    run fnInstallAllRepos
+
+    [ "$status" -eq 0 ]
+}
