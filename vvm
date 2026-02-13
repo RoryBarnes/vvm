@@ -21,26 +21,31 @@ fnResolveScriptDir() {
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-readonly VVM_DIR="$(fnResolveScriptDir)"
+VVM_DIR="$(fnResolveScriptDir)"
+readonly VVM_DIR
 readonly VVM_IMAGE="vvm:latest"
 readonly VVM_CONTAINER="vvm"
 readonly VVM_VOLUME="vvm-workspace"
 
 # Detect platform and set appropriate values
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    readonly TOTAL_CORES=$(sysctl -n hw.ncpu)
+    TOTAL_CORES=$(sysctl -n hw.ncpu)
 else
-    readonly TOTAL_CORES=$(nproc)
+    TOTAL_CORES=$(nproc)
 fi
-readonly CONTAINER_CORES=$(( TOTAL_CORES - 1 ))
+readonly TOTAL_CORES
+CONTAINER_CORES=$(( TOTAL_CORES - 1 ))
+readonly CONTAINER_CORES
 
 # Temp files to clean up on exit
 CLEANUP_FILES=()
 
 fnCleanup() {
-    for sFile in "${CLEANUP_FILES[@]}"; do
-        rm -f "${sFile}" 2>/dev/null
-    done
+    if [ "${#CLEANUP_FILES[@]}" -gt 0 ]; then
+        for sFile in "${CLEANUP_FILES[@]}"; do
+            rm -f "${sFile}" 2>/dev/null
+        done
+    fi
 }
 trap fnCleanup EXIT
 
