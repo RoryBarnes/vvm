@@ -1,13 +1,27 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 # vvm - Virtual VPLanet Machine
 # Start an isolated Docker container with the complete VPLanet ecosystem.
 
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
+# fnResolveScriptDir: Follow symlinks to find the real script directory
+# ---------------------------------------------------------------------------
+fnResolveScriptDir() {
+    local sSource="${BASH_SOURCE[0]}"
+    while [ -L "${sSource}" ]; do
+        local sDir
+        sDir="$(cd "$(dirname "${sSource}")" && pwd -P)"
+        sSource="$(readlink "${sSource}")"
+        [[ "${sSource}" != /* ]] && sSource="${sDir}/${sSource}"
+    done
+    cd "$(dirname "${sSource}")" && pwd -P
+}
+
+# ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-readonly VVM_DIR="${0:A:h}"
+readonly VVM_DIR="$(fnResolveScriptDir)"
 readonly VVM_IMAGE="vvm:latest"
 readonly VVM_CONTAINER="vvm"
 readonly VVM_VOLUME="vvm-workspace"
