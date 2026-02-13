@@ -9,19 +9,19 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 # ---------------------------------------------------------------------------
 
 @test "vvm --help exits 0" {
-    run zsh "${VVM_SCRIPT}" --help
+    run bash "${VVM_SCRIPT}" --help
 
     [ "$status" -eq 0 ]
 }
 
 @test "vvm --help prints usage line" {
-    run zsh "${VVM_SCRIPT}" --help
+    run bash "${VVM_SCRIPT}" --help
 
     [[ "$output" =~ "Usage: vvm" ]]
 }
 
 @test "vvm --help lists all subcommands" {
-    run zsh "${VVM_SCRIPT}" --help
+    run bash "${VVM_SCRIPT}" --help
 
     [[ "$output" =~ "--build" ]]
     [[ "$output" =~ "--status" ]]
@@ -30,7 +30,7 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 }
 
 @test "vvm -h is equivalent to --help" {
-    run zsh "${VVM_SCRIPT}" -h
+    run bash "${VVM_SCRIPT}" -h
 
     [ "$status" -eq 0 ]
     [[ "$output" =~ "Usage: vvm" ]]
@@ -40,8 +40,8 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 # Script syntax
 # ---------------------------------------------------------------------------
 
-@test "vvm script has valid zsh syntax" {
-    run zsh -n "${VVM_SCRIPT}"
+@test "vvm script has valid bash syntax" {
+    run bash -n "${VVM_SCRIPT}"
 
     [ "$status" -eq 0 ]
 }

@@ -10,8 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: shellcheck entrypoint
-        run: shellcheck -s bash entrypoint.sh
+      - name: shellcheck
+        run: |
+          shellcheck -s bash entrypoint.sh
+          shellcheck -s bash vvm
 
       - name: hadolint
         uses: hadolint/hadolint-action@v3.1.0
@@ -36,9 +38,9 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install pytest
 
-      - name: Install bats and zsh (Linux)
+      - name: Install bats (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y bats zsh
+        run: sudo apt-get update && sudo apt-get install -y bats
 
       - name: Install bats (macOS)
         if: runner.os == 'macOS'
