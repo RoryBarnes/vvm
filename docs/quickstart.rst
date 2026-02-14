@@ -51,7 +51,7 @@ Example Session
       Cores:     9
     ==========================================
 
-    root@vvm:/workspace#
+    vplanet@vvm:/workspace$
 
 From here you can run simulations, execute tests, commit code, and push
 to GitHub. The host filesystem is completely isolated.
