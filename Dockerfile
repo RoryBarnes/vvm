@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     valgrind \
     lcov \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
@@ -71,11 +72,14 @@ RUN pip install --no-cache-dir \
     "SALib>=1.4" \
     "argparse"
 
+RUN useradd -m -s /bin/bash -u 1000 vplanet
+
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && git config --system advice.detachedHead false \
-    && mkdir -p /workspace
+    && mkdir -p /workspace \
+    && chown vplanet:vplanet /workspace
 
 ENV WORKSPACE=/workspace
 ENV VPLANET_BINARY=/workspace/vplanet/bin/vplanet
