@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     valgrind \
     lcov \
     gosu \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
@@ -72,7 +73,8 @@ RUN pip install --no-cache-dir \
     "SALib>=1.4" \
     "argparse"
 
-RUN useradd -m -s /bin/bash -u 1000 vplanet
+RUN useradd -m -s /bin/bash -u 1000 vplanet \
+    && echo 'vplanet ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/vplanet
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
