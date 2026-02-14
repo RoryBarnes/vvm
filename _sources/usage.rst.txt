@@ -191,28 +191,18 @@ Claude Code (Optional)
 AI coding assistant that can be installed inside the container for
 interactive development sessions. It is not included in the default image.
 
-To install Claude Code manually inside a running container:
+The container runs as the ``vplanet`` user (not root). To install Claude
+Code, switch to root temporarily with ``sudo``:
 
 .. code-block:: bash
 
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-    apt-get install -y nodejs
-    npm install -g @anthropic-ai/claude-code
+    sudo bash -c 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+        && apt-get install -y nodejs \
+        && npm install -g @anthropic-ai/claude-code'
 
-To persist the configuration across container restarts, create a symlink
-before first use:
-
-.. code-block:: bash
-
-    mkdir -p /workspace/.claude
-    ln -sfn /workspace/.claude /root/.claude
-    claude
-
-Claude Code prompts for your Anthropic API key interactively. The key and
-configuration persist in the workspace volume at ``/workspace/.claude/``,
-so you only need to authenticate once.
-
-To start Claude Code in a specific repository:
+``VVM`` automatically persists Claude Code's configuration in the
+workspace volume at ``/workspace/.claude/``, so you only need to
+authenticate once. To start Claude Code in a specific repository:
 
 .. code-block:: bash
 
@@ -266,7 +256,12 @@ Your user account needs to be in the ``docker`` group:
 
     sudo usermod -aG docker $USER
 
-Log out and back in for this to take effect.
+Log out and back in for this to take effect. To apply the change in
+your current terminal without logging out:
+
+.. code-block:: bash
+
+    newgrp docker
 
 **Repository clone fails:**
 
