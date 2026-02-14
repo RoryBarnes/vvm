@@ -29,12 +29,12 @@ fnConfigureGit() {
 
     if [ -n "${sToken}" ]; then
         echo "[vvm] GitHub credentials detected."
-        git config --global url."https://${sToken}@github.com/".insteadOf \
+        git config --system url."https://${sToken}@github.com/".insteadOf \
             "git@github.com:"
     else
         echo "[vvm] No GitHub credentials found. Public repos only."
         echo "[vvm]   To access private repos, run on host: gh auth login"
-        git config --global url."https://github.com/".insteadOf \
+        git config --system url."https://github.com/".insteadOf \
             "git@github.com:"
     fi
 }
@@ -199,7 +199,7 @@ fnInstallAllRepos() {
 # ---------------------------------------------------------------------------
 fnPersistClaudeConfig() {
     mkdir -p "${WORKSPACE}/.claude"
-    ln -sfn "${WORKSPACE}/.claude" /root/.claude
+    ln -sfn "${WORKSPACE}/.claude" /home/vplanet/.claude
 }
 
 # ---------------------------------------------------------------------------
@@ -240,5 +240,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     fnBuildVplanet
     fnInstallAllRepos
     fnPrintSummary
-    exec "$@"
+
+    chown -R vplanet:vplanet "${WORKSPACE}"
+    exec gosu vplanet "$@"
 fi

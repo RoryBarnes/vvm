@@ -98,15 +98,15 @@ teardown() {
     [ -d "${WORKSPACE}/.claude" ]
 }
 
-@test "fnPersistClaudeConfig: creates symlink at /root/.claude" {
-    if [ "$(id -u)" -ne 0 ]; then
-        skip "requires root to write to /root"
+@test "fnPersistClaudeConfig: creates symlink at /home/vplanet/.claude" {
+    if [ ! -d "/home/vplanet" ]; then
+        skip "requires vplanet user (container only)"
     fi
 
     fnPersistClaudeConfig
 
-    [ -L "/root/.claude" ]
-    [ "$(readlink /root/.claude)" = "${WORKSPACE}/.claude" ]
+    [ -L "/home/vplanet/.claude" ]
+    [ "$(readlink /home/vplanet/.claude)" = "${WORKSPACE}/.claude" ]
 }
 
 # ---------------------------------------------------------------------------
@@ -173,10 +173,14 @@ CONF
 # ---------------------------------------------------------------------------
 
 @test "fnConfigureGit: rewrites SSH to HTTPS without token" {
+    if [ "$(id -u)" -ne 0 ]; then
+        skip "requires root to write system git config"
+    fi
+
     fnConfigureGit
 
     local sRewrite
-    sRewrite=$(git config --global --get "url.https://github.com/.insteadOf" || true)
+    sRewrite=$(git config --system --get "url.https://github.com/.insteadOf" || true)
     [ "${sRewrite}" = "git@github.com:" ]
 }
 
