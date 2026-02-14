@@ -55,24 +55,28 @@ DOCKER=""
 # fnCheckDocker: Find the Docker binary and verify the daemon is reachable
 # ---------------------------------------------------------------------------
 fnCheckDocker() {
-    if command -v docker > /dev/null 2>&1; then
-        DOCKER="$(command -v docker)"
-    else
+    if ! command -v docker > /dev/null 2>&1; then
         echo "Error: docker not found on PATH."
         exit 1
     fi
-    if ! "${DOCKER}" info > /dev/null 2>&1; then
-        echo "Error: Docker daemon is not running."
-        echo ""
-        if [[ "$(uname -s)" == "Darwin" ]]; then
-            echo "Start Colima with:"
-            echo "  colima start --cpu ${CONTAINER_CORES} --memory 8"
-        else
-            echo "Start Docker with:"
-            echo "  sudo systemctl start docker"
-        fi
-        exit 1
+    DOCKER="$(command -v docker)"
+
+    local sError
+    if sError=$("${DOCKER}" info 2>&1); then
+        return 0
     fi
+
+    if [[ "${sError}" == *"permission denied"* ]]; then
+        echo "Error: Permission denied when connecting to Docker."
+        echo "  Fix: sudo usermod -aG docker \$USER && newgrp docker"
+    elif [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "Error: Docker daemon is not running."
+        echo "  Fix: colima start --cpu ${CONTAINER_CORES} --memory 8"
+    else
+        echo "Error: Docker daemon is not running."
+        echo "  Fix: sudo systemctl start docker"
+    fi
+    exit 1
 }
 
 # ---------------------------------------------------------------------------
