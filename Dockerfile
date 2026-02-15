@@ -80,6 +80,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && git config --system advice.detachedHead false \
+    && git config --system --add safe.directory '*' \
     && mkdir -p /workspace \
     && chown vplanet:vplanet /workspace
 
