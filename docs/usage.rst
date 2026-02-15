@@ -156,8 +156,10 @@ VS Code
 -------
 
 ``VVM`` includes a Dev Containers configuration for
-`VS Code <https://code.visualstudio.com/>`_. There are two ways to use
-VS Code with ``VVM``:
+`VS Code <https://code.visualstudio.com/>`_. Both options below require
+the `Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_
+extension. Install it from the Extensions panel (``Cmd+Shift+X`` on
+macOS, ``Ctrl+Shift+X`` on Linux) by searching for "Dev Containers."
 
 **Option A: Attach to a running container**
 
@@ -176,9 +178,7 @@ VS Code with ``VVM``:
 4. VS Code builds the image, starts the container, runs the entrypoint,
    and connects automatically
 
-Option B requires the
-`Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_
-extension. It installs the GitHub CLI inside the container and forwards
+Option B installs the GitHub CLI inside the container and forwards
 your host credentials, so ``gh auth login`` on the host is sufficient.
 
 Both options install the Python and C/C++ extensions inside the container
