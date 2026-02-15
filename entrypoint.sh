@@ -31,6 +31,8 @@ fnConfigureGit() {
         echo "[vvm] GitHub credentials detected."
         git config --system url."https://${sToken}@github.com/".insteadOf \
             "git@github.com:"
+        git config --system --add url."https://${sToken}@github.com/".insteadOf \
+            "https://github.com/"
     else
         echo "[vvm] No GitHub credentials found. Public repos only."
         echo "[vvm]   To access private repos, run on host: gh auth login"
