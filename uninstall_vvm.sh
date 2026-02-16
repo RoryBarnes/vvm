@@ -131,7 +131,7 @@ fnRemovePathEntry() {
 # fnRemoveClaudeMarker: Remove the .claude_enabled marker file
 # ---------------------------------------------------------------------------
 fnRemoveClaudeMarker() {
-    sMarkerDir="${1:-$(cd "$(dirname "$0")" && pwd)}"
+    sMarkerDir="$1"
     if [ -f "${sMarkerDir}/.claude_enabled" ]; then
         rm -f "${sMarkerDir}/.claude_enabled"
         echo "[uninstall] Removed Claude Code marker."
@@ -142,6 +142,7 @@ fnRemoveClaudeMarker() {
 # Main — only runs when executed directly (not when sourced by tests)
 # ===========================================================================
 if [ -n "${VVM_TESTING:-}" ]; then
+    # shellcheck disable=SC2317
     return 0 2>/dev/null || true
 fi
 
@@ -169,10 +170,10 @@ fnRemoveImage
 fnRemoveVolume
 fnRemoveSymlink
 fnRemovePathEntry
-fnRemoveClaudeMarker
+sRepoDir="$(cd "$(dirname "$0")" && pwd)"
+fnRemoveClaudeMarker "${sRepoDir}"
 
 echo ""
 echo "[uninstall] VVM has been uninstalled."
 echo "[uninstall] To remove the VVM repository, delete this directory:"
-sRepoDir="$(cd "$(dirname "$0")" && pwd)"
 echo "  rm -rf ${sRepoDir}"
