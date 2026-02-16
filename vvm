@@ -121,7 +121,18 @@ fnBuildImage() {
     if [ "${bNeedsBuild}" = true ]; then
         echo "[vvm] Building container image..."
         "${DOCKER}" build -t "${VVM_IMAGE}" "${VVM_DIR}"
+        fnBuildClaudeOverlay
         echo "[vvm] Image built."
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnBuildClaudeOverlay: Layer Claude Code on top of the base image
+# ---------------------------------------------------------------------------
+fnBuildClaudeOverlay() {
+    if [ -f "${VVM_DIR}/.claude_enabled" ] && [ -f "${VVM_DIR}/Dockerfile.claude" ]; then
+        echo "[vvm] Building Claude Code overlay..."
+        "${DOCKER}" build -t "${VVM_IMAGE}" -f "${VVM_DIR}/Dockerfile.claude" "${VVM_DIR}"
     fi
 }
 
@@ -266,6 +277,7 @@ case "${1:-}" in
         fnCheckDocker
         echo "[vvm] Forcing image rebuild..."
         "${DOCKER}" build --no-cache -t "${VVM_IMAGE}" "${VVM_DIR}"
+        fnBuildClaudeOverlay
         fnCreateVolume
         fnStartContainer "$@"
         ;;

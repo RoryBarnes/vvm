@@ -125,3 +125,16 @@ class TestDockerBuild:
     def test_repos_conf_is_present(self):
         result = fnDockerRun("test -f /etc/vvm/repos.conf && echo ok")
         assert "ok" in result.stdout
+
+    def test_check_isolation_exists(self):
+        result = fnDockerRun(
+            "test -x /home/vplanet/check_isolation.sh && echo ok"
+        )
+        assert "ok" in result.stdout
+
+    def test_check_isolation_owned_by_vplanet(self):
+        result = fnDockerRun(
+            "stat -c '%U' /home/vplanet/check_isolation.sh"
+        )
+        assert result.returncode == 0
+        assert "vplanet" in result.stdout
