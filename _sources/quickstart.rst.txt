@@ -67,3 +67,15 @@ shell:
     vvm pytest /workspace/vspace/tests/ -x
 
 This starts the container, runs the command, and exits.
+
+Connecting to a Running Container
+---------------------------------
+
+If the container is already running in another terminal, open a second
+shell session with:
+
+.. code-block:: bash
+
+    connect_vvm
+
+This is equivalent to ``docker exec -it -u vplanet vvm bash``.

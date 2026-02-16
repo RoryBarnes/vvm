@@ -48,6 +48,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#example-session">Example Session</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-a-command">Running a Command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connecting-to-a-running-container">Connecting to a Running Container</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -139,6 +140,15 @@ shell:</p>
 </pre></div>
 </div>
 <p>This starts the container, runs the command, and exits.</p>
+</section>
+<section id="connecting-to-a-running-container">
+<h2>Connecting to a Running Container<a class="headerlink" href="#connecting-to-a-running-container" title="Link to this heading"></a></h2>
+<p>If the container is already running in another terminal, open a second
+shell session with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>connect_vvm
+</pre></div>
+</div>
+<p>This is equivalent to <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">-u</span> <span class="pre">vplanet</span> <span class="pre">vvm</span> <span class="pre">bash</span></code>.</p>
 </section>
 </section>
 

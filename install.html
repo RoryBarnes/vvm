@@ -50,6 +50,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#linux-ubuntu-debian">Linux (Ubuntu/Debian)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#linux-fedora-rhel">Linux (Fedora/RHEL)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verifying-the-installation">Verifying the Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uninstalling">Uninstalling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#for-vplanet-private-developers">For vplanet-private Developers</a></li>
 </ul>
 </li>
@@ -98,13 +99,24 @@ Subsequent starts take under a minute.</p>
 <section id="automated-install">
 <h2>Automated Install<a class="headerlink" href="#automated-install" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">install_vvm.sh</span></code> script detects your operating system and package
-manager, installs all dependencies, clones <code class="docutils literal notranslate"><span class="pre">VVM</span></code>, and creates a symlink
-so that <code class="docutils literal notranslate"><span class="pre">vvm</span></code> is available from any terminal. To use it:</p>
+manager, installs all dependencies, clones <code class="docutils literal notranslate"><span class="pre">VVM</span></code>, creates a symlink
+so that <code class="docutils literal notranslate"><span class="pre">vvm</span></code> is available from any terminal, and adds the <code class="docutils literal notranslate"><span class="pre">VVM</span></code>
+utilities directory to your shell’s <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
 <span class="nb">cd</span><span class="w"> </span>vvm
 sh<span class="w"> </span>install_vvm.sh
 </pre></div>
 </div>
+<p>To include <a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>
+in the Docker image, pass the <code class="docutils literal notranslate"><span class="pre">--claude</span></code> flag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--claude
+</pre></div>
+</div>
+<p>The installer adds the <code class="docutils literal notranslate"><span class="pre">vvm/bin</span></code> directory to your shell configuration
+(<code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.bash_profile</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.config/fish/config.fish</span></code>,
+or <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code> depending on your shell). This makes utilities like
+<code class="docutils literal notranslate"><span class="pre">connect_vvm</span></code> available from any terminal. Open a new terminal or source
+your shell config for the change to take effect.</p>
 <p>The script supports macOS (MacPorts or Homebrew), Ubuntu/Debian, and
 Fedora/RHEL. If you prefer to install manually, follow the instructions
 below for your platform.</p>
@@ -211,6 +223,25 @@ test suite.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>/workspace/verify_vvm.sh
 </pre></div>
 </div>
+</section>
+<section id="uninstalling">
+<h2>Uninstalling<a class="headerlink" href="#uninstalling" title="Link to this heading"></a></h2>
+<p>To remove <code class="docutils literal notranslate"><span class="pre">VVM</span></code> and all of its Docker resources, run the uninstall script
+from the <code class="docutils literal notranslate"><span class="pre">VVM</span></code> repository directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>uninstall_vvm.sh
+</pre></div>
+</div>
+<p>The script removes:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">vvm:latest</span></code> Docker image</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">vvm-workspace</span></code> Docker volume (after confirmation, since it
+contains cloned repositories and local commits)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">vvm</span></code> symlink from the system bin directory</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">VVM</span></code> PATH entries from your shell configuration</p></li>
+</ul>
+<p>The script does <strong>not</strong> remove Docker, Colima, the GitHub CLI, or the
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> repository directory itself. To remove the repository after
+uninstalling, delete the directory manually.</p>
 </section>
 <section id="for-vplanet-private-developers">
 <span id="private-repo-access"></span><h2>For vplanet-private Developers<a class="headerlink" href="#for-vplanet-private-developers" title="Link to this heading"></a></h2>

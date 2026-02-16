@@ -14,6 +14,7 @@ Run ``VVM`` from the host with the following options:
     vvm --status          # Show image, volume, and container state
     vvm --destroy         # Remove the workspace volume
     vvm --help            # Show usage information
+    connect_vvm           # Open a new shell in the running container
 
 Workspace Layout
 ----------------
@@ -156,8 +157,10 @@ VS Code
 -------
 
 ``VVM`` includes a Dev Containers configuration for
-`VS Code <https://code.visualstudio.com/>`_. There are two ways to use
-VS Code with ``VVM``:
+`VS Code <https://code.visualstudio.com/>`_. Both options below require
+the `Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_
+extension. Install it from the Extensions panel (``Cmd+Shift+X`` on
+macOS, ``Ctrl+Shift+X`` on Linux) by searching for "Dev Containers."
 
 **Option A: Attach to a running container**
 
@@ -176,9 +179,7 @@ VS Code with ``VVM``:
 4. VS Code builds the image, starts the container, runs the entrypoint,
    and connects automatically
 
-Option B requires the
-`Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_
-extension. It installs the GitHub CLI inside the container and forwards
+Option B installs the GitHub CLI inside the container and forwards
 your host credentials, so ``gh auth login`` on the host is sufficient.
 
 Both options install the Python and C/C++ extensions inside the container
@@ -191,8 +192,24 @@ Claude Code (Optional)
 AI coding assistant that can be installed inside the container for
 interactive development sessions. It is not included in the default image.
 
-The container runs as the ``vplanet`` user (not root). To install Claude
-Code, switch to root temporarily with ``sudo``:
+**Option 1: Install during setup**
+
+Pass ``--claude`` when running the installer to include Claude Code in the
+Docker image:
+
+.. code-block:: bash
+
+    sh install_vvm.sh --claude
+
+This creates a ``Dockerfile.claude`` overlay that layers Node.js and Claude
+Code on top of the base image. The overlay is built automatically whenever
+``VVM`` rebuilds the image.
+
+**Option 2: Install manually inside the container**
+
+If you installed ``VVM`` without ``--claude``, you can install Claude Code
+at any time. The container runs as the ``vplanet`` user (not root), so
+switch to root temporarily with ``sudo``:
 
 .. code-block:: bash
 
@@ -208,6 +225,34 @@ authenticate once. To start Claude Code in a specific repository:
 
     cd /workspace/vplanet
     claude
+
+Container Utilities
+-------------------
+
+``VVM`` includes utility scripts for working with the container.
+
+**connect_vvm** opens a new shell session in an already-running container.
+This is useful when you want a second terminal inside the container while
+your first session is still active:
+
+.. code-block:: bash
+
+    connect_vvm
+
+The ``connect_vvm`` command is available on the host after running the
+installer. It is equivalent to ``docker exec -it -u vplanet vvm bash``.
+
+**check_isolation.sh** verifies that the container's filesystem is
+isolated from the host. It is located in the ``vplanet`` user's home
+directory and can be run inside the container:
+
+.. code-block:: bash
+
+    ~/check_isolation.sh
+
+The script checks for host bind mounts, listening network ports, Docker
+socket access, and privileged mode. All checks should pass under normal
+``VVM`` operation.
 
 Resource Allocation
 -------------------

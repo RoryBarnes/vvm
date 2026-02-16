@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#repos-conf">repos.conf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#claude-code-optional">Claude Code (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#container-utilities">Container Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#resource-allocation">Resource Allocation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
@@ -98,6 +99,7 @@ vvm<span class="w"> </span>--build<span class="w">           </span><span class=
 vvm<span class="w"> </span>--status<span class="w">          </span><span class="c1"># Show image, volume, and container state</span>
 vvm<span class="w"> </span>--destroy<span class="w">         </span><span class="c1"># Remove the workspace volume</span>
 vvm<span class="w"> </span>--help<span class="w">            </span><span class="c1"># Show usage information</span>
+connect_vvm<span class="w">           </span><span class="c1"># Open a new shell in the running container</span>
 </pre></div>
 </div>
 </section>
@@ -225,8 +227,10 @@ method, separated by pipes:</p>
 <section id="vs-code">
 <h2>VS Code<a class="headerlink" href="#vs-code" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> includes a Dev Containers configuration for
-<a class="reference external" href="https://code.visualstudio.com/">VS Code</a>. There are two ways to use
-VS Code with <code class="docutils literal notranslate"><span class="pre">VVM</span></code>:</p>
+<a class="reference external" href="https://code.visualstudio.com/">VS Code</a>. Both options below require
+the <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers</a>
+extension. Install it from the Extensions panel (<code class="docutils literal notranslate"><span class="pre">Cmd+Shift+X</span></code> on
+macOS, <code class="docutils literal notranslate"><span class="pre">Ctrl+Shift+X</span></code> on Linux) by searching for “Dev Containers.”</p>
 <p><strong>Option A: Attach to a running container</strong></p>
 <ol class="arabic simple">
 <li><p>Start the container from the terminal: <code class="docutils literal notranslate"><span class="pre">vvm</span></code></p></li>
@@ -244,9 +248,7 @@ reopen in container</p></li>
 <li><p>VS Code builds the image, starts the container, runs the entrypoint,
 and connects automatically</p></li>
 </ol>
-<p>Option B requires the
-<a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers</a>
-extension. It installs the GitHub CLI inside the container and forwards
+<p>Option B installs the GitHub CLI inside the container and forwards
 your host credentials, so <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host is sufficient.</p>
 <p>Both options install the Python and C/C++ extensions inside the container
 automatically.</p>
@@ -256,8 +258,19 @@ automatically.</p>
 <p><a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> is an
 AI coding assistant that can be installed inside the container for
 interactive development sessions. It is not included in the default image.</p>
-<p>The container runs as the <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> user (not root). To install Claude
-Code, switch to root temporarily with <code class="docutils literal notranslate"><span class="pre">sudo</span></code>:</p>
+<p><strong>Option 1: Install during setup</strong></p>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">--claude</span></code> when running the installer to include Claude Code in the
+Docker image:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--claude
+</pre></div>
+</div>
+<p>This creates a <code class="docutils literal notranslate"><span class="pre">Dockerfile.claude</span></code> overlay that layers Node.js and Claude
+Code on top of the base image. The overlay is built automatically whenever
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> rebuilds the image.</p>
+<p><strong>Option 2: Install manually inside the container</strong></p>
+<p>If you installed <code class="docutils literal notranslate"><span class="pre">VVM</span></code> without <code class="docutils literal notranslate"><span class="pre">--claude</span></code>, you can install Claude Code
+at any time. The container runs as the <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> user (not root), so
+switch to root temporarily with <code class="docutils literal notranslate"><span class="pre">sudo</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \</span>
 <span class="s1">    &amp;&amp; apt-get install -y nodejs \</span>
 <span class="s1">    &amp;&amp; npm install -g @anthropic-ai/claude-code&#39;</span>
@@ -270,6 +283,27 @@ authenticate once. To start Claude Code in a specific repository:</p>
 claude
 </pre></div>
 </div>
+</section>
+<section id="container-utilities">
+<h2>Container Utilities<a class="headerlink" href="#container-utilities" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> includes utility scripts for working with the container.</p>
+<p><strong>connect_vvm</strong> opens a new shell session in an already-running container.
+This is useful when you want a second terminal inside the container while
+your first session is still active:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>connect_vvm
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">connect_vvm</span></code> command is available on the host after running the
+installer. It is equivalent to <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">-u</span> <span class="pre">vplanet</span> <span class="pre">vvm</span> <span class="pre">bash</span></code>.</p>
+<p><strong>check_isolation.sh</strong> verifies that the container’s filesystem is
+isolated from the host. It is located in the <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> user’s home
+directory and can be run inside the container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/check_isolation.sh
+</pre></div>
+</div>
+<p>The script checks for host bind mounts, listening network ports, Docker
+socket access, and privileged mode. All checks should pass under normal
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> operation.</p>
 </section>
 <section id="resource-allocation">
 <h2>Resource Allocation<a class="headerlink" href="#resource-allocation" title="Link to this heading"></a></h2>
