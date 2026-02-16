@@ -145,7 +145,9 @@ fnInstallFedora() {
 fnCloneAndLink() {
     sBinDir="$1"
 
-    if [ -d "vvm" ]; then
+    if [ -x "./vvm" ] && [ -f "./Dockerfile" ]; then
+        echo "[install] Already inside the VVM repository."
+    elif [ -d "vvm" ]; then
         echo "[install] vvm directory already exists. Skipping clone."
         cd vvm
     else
