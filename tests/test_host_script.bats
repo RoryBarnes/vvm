@@ -51,3 +51,25 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 
     [ "$status" -eq 0 ]
 }
+
+@test "check_isolation.sh has valid bash syntax" {
+    run bash -n "${REPO_ROOT}/check_isolation.sh"
+
+    [ "$status" -eq 0 ]
+}
+
+@test "bin/connect_vvm has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/bin/connect_vvm"
+
+    [ "$status" -eq 0 ]
+}
+
+@test "install_vvm.sh has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/install_vvm.sh"
+
+    [ "$status" -eq 0 ]
+}
+
+@test "Dockerfile.claude exists" {
+    [ -f "${REPO_ROOT}/Dockerfile.claude" ]
+}

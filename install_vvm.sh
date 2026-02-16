@@ -2,18 +2,39 @@
 # install_vvm.sh - Install VVM and its host dependencies.
 #
 # Detects the operating system and package manager, installs Docker and
-# the GitHub CLI, clones the VVM repository, and creates a symlink so
-# that "vvm" is available on PATH.
+# the GitHub CLI, clones the VVM repository, creates a symlink so that
+# "vvm" is available on PATH, and adds the VVM bin directory to the
+# user's shell configuration.
 #
 # Usage:
-#   sh install_vvm.sh
+#   sh install_vvm.sh [--claude]
 
 set -e
 
 VVM_REPO="https://github.com/RoryBarnes/vvm.git"
+INSTALL_CLAUDE=false
 
 # ---------------------------------------------------------------------------
 fnPrintError() { echo "ERROR: $1" >&2; }
+
+# ---------------------------------------------------------------------------
+# fnParseArguments: Handle command-line flags
+# ---------------------------------------------------------------------------
+fnParseArguments() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --claude)
+                INSTALL_CLAUDE=true
+                ;;
+            *)
+                fnPrintError "Unknown option: $1"
+                echo "Usage: sh install_vvm.sh [--claude]" >&2
+                exit 1
+                ;;
+        esac
+        shift
+    done
+}
 
 # ---------------------------------------------------------------------------
 # fnDetectPlatform: Set PLATFORM to "Darwin" or "Linux"
@@ -135,11 +156,80 @@ fnCloneAndLink() {
     chmod +x vvm
     echo "[install] Creating symlink at ${sBinDir}/vvm..."
     sudo ln -sf "$(pwd)/vvm" "${sBinDir}/vvm"
+
+    fnConfigureShellPath "$(pwd)/bin"
+}
+
+# ---------------------------------------------------------------------------
+# fnConfigureShellPath: Add the VVM bin directory to the user's shell PATH
+# Arguments: sBinDirectory
+# ---------------------------------------------------------------------------
+fnConfigureShellPath() {
+    local sBinDirectory="$1"
+    local sShellName
+    local sRcFile=""
+
+    sShellName="$(basename "${SHELL:-/bin/sh}")"
+
+    case "${sShellName}" in
+        zsh)
+            sRcFile="${HOME}/.zshrc"
+            ;;
+        bash)
+            if [ "$(uname -s)" = "Darwin" ]; then
+                sRcFile="${HOME}/.bash_profile"
+            else
+                sRcFile="${HOME}/.bashrc"
+            fi
+            ;;
+        fish)
+            sRcFile="${HOME}/.config/fish/config.fish"
+            ;;
+        *)
+            sRcFile="${HOME}/.profile"
+            ;;
+    esac
+
+    if [ -z "${sRcFile}" ]; then
+        echo "[install] Could not determine shell config file. Skipping PATH setup."
+        echo "[install] Add this to your shell config manually:"
+        echo "  export PATH=\"${sBinDirectory}:\$PATH\""
+        return
+    fi
+
+    if [ "${sShellName}" = "fish" ]; then
+        local sExportLine="set -gx PATH ${sBinDirectory} \$PATH"
+    else
+        local sExportLine="export PATH=\"${sBinDirectory}:\$PATH\""
+    fi
+
+    if [ -f "${sRcFile}" ] && grep -qF "${sBinDirectory}" "${sRcFile}" 2>/dev/null; then
+        echo "[install] PATH already configured in ${sRcFile}."
+        return
+    fi
+
+    echo "" >> "${sRcFile}"
+    echo "# Added by VVM installer" >> "${sRcFile}"
+    echo "${sExportLine}" >> "${sRcFile}"
+    echo "[install] Added ${sBinDirectory} to PATH in ${sRcFile}."
+    echo "[install] Open a new terminal or run: . ${sRcFile}"
+}
+
+# ---------------------------------------------------------------------------
+# fnEnableClaude: Mark VVM to include Claude Code in the Docker image
+# ---------------------------------------------------------------------------
+fnEnableClaude() {
+    local sVvmDirectory="$1"
+
+    touch "${sVvmDirectory}/.claude_enabled"
+    echo "[install] Claude Code will be included in the Docker image."
+    echo "[install] The image will be built with Claude Code on first 'vvm' run."
 }
 
 # ===========================================================================
 # Main
 # ===========================================================================
+fnParseArguments "$@"
 fnDetectPlatform
 echo "[install] Detected platform: ${PLATFORM}"
 
@@ -173,6 +263,10 @@ elif [ "${PLATFORM}" = "Linux" ]; then
     fi
     echo ""
     echo "[install] Installation complete."
+fi
+
+if [ "${INSTALL_CLAUDE}" = true ]; then
+    fnEnableClaude "$(pwd)"
 fi
 
 echo "[install] Run 'vvm' to start the Virtual VPLanet Machine."

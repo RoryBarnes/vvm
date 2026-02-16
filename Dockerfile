@@ -78,7 +78,10 @@ RUN useradd -m -s /bin/bash -u 1000 vplanet \
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY repos.conf /etc/vvm/repos.conf
+COPY check_isolation.sh /home/vplanet/check_isolation.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod +x /home/vplanet/check_isolation.sh \
+    && chown vplanet:vplanet /home/vplanet/check_isolation.sh \
     && git config --system advice.detachedHead false \
     && git config --system --add safe.directory '*' \
     && mkdir -p /workspace \

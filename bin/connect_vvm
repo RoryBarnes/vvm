@@ -1,0 +1,4 @@
+#!/bin/sh
+# connect_vvm - Open a new shell session in the running VVM container.
+
+docker exec -it -u vplanet vvm bash
