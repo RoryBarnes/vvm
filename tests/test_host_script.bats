@@ -70,6 +70,12 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
     [ "$status" -eq 0 ]
 }
 
+@test "uninstall_vvm.sh has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/uninstall_vvm.sh"
+
+    [ "$status" -eq 0 ]
+}
+
 @test "Dockerfile.claude exists" {
     [ -f "${REPO_ROOT}/Dockerfile.claude" ]
 }

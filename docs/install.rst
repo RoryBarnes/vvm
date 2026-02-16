@@ -180,6 +180,28 @@ A verification script is also available inside the container:
 
     sh /workspace/verify_vvm.sh
 
+Uninstalling
+------------
+
+To remove ``VVM`` and all of its Docker resources, run the uninstall script
+from the ``VVM`` repository directory:
+
+.. code-block:: bash
+
+    sh uninstall_vvm.sh
+
+The script removes:
+
+- The ``vvm:latest`` Docker image
+- The ``vvm-workspace`` Docker volume (after confirmation, since it
+  contains cloned repositories and local commits)
+- The ``vvm`` symlink from the system bin directory
+- The ``VVM`` PATH entries from your shell configuration
+
+The script does **not** remove Docker, Colima, the GitHub CLI, or the
+``VVM`` repository directory itself. To remove the repository after
+uninstalling, delete the directory manually.
+
 .. _private-repo-access:
 
 For vplanet-private Developers
