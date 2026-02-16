@@ -131,16 +131,20 @@ fnRemovePathEntry() {
 # fnRemoveClaudeMarker: Remove the .claude_enabled marker file
 # ---------------------------------------------------------------------------
 fnRemoveClaudeMarker() {
-    sScriptDir="$(cd "$(dirname "$0")" && pwd)"
-    if [ -f "${sScriptDir}/.claude_enabled" ]; then
-        rm -f "${sScriptDir}/.claude_enabled"
+    sMarkerDir="${1:-$(cd "$(dirname "$0")" && pwd)}"
+    if [ -f "${sMarkerDir}/.claude_enabled" ]; then
+        rm -f "${sMarkerDir}/.claude_enabled"
         echo "[uninstall] Removed Claude Code marker."
     fi
 }
 
 # ===========================================================================
-# Main
+# Main — only runs when executed directly (not when sourced by tests)
 # ===========================================================================
+if [ -n "${VVM_TESTING:-}" ]; then
+    return 0 2>/dev/null || true
+fi
+
 echo "=========================================="
 echo "  VVM Uninstaller"
 echo "=========================================="
