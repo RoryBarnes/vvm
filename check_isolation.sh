@@ -127,7 +127,7 @@ fnCheckPrivilegedMode() {
 
     # In privileged mode, the container can see all host devices
     local iDeviceCount
-    iDeviceCount=$(ls /dev/ 2>/dev/null | wc -l)
+    iDeviceCount=$(find /dev/ -maxdepth 1 -mindepth 1 2>/dev/null | wc -l)
 
     # Privileged containers typically expose 50+ devices; unprivileged ~15
     if [[ "$iDeviceCount" -gt 40 ]]; then
