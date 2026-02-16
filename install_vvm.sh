@@ -143,7 +143,7 @@ fnInstallFedora() {
 # fnCloneAndLink: Clone VVM and create the symlink
 # ---------------------------------------------------------------------------
 fnCloneAndLink() {
-    local sBinDir="$1"
+    sBinDir="$1"
 
     if [ -d "vvm" ]; then
         echo "[install] vvm directory already exists. Skipping clone."
@@ -165,9 +165,8 @@ fnCloneAndLink() {
 # Arguments: sBinDirectory
 # ---------------------------------------------------------------------------
 fnConfigureShellPath() {
-    local sBinDirectory="$1"
-    local sShellName
-    local sRcFile=""
+    sBinDirectory="$1"
+    sRcFile=""
 
     sShellName="$(basename "${SHELL:-/bin/sh}")"
 
@@ -198,9 +197,9 @@ fnConfigureShellPath() {
     fi
 
     if [ "${sShellName}" = "fish" ]; then
-        local sExportLine="set -gx PATH ${sBinDirectory} \$PATH"
+        sExportLine="set -gx PATH ${sBinDirectory} \$PATH"
     else
-        local sExportLine="export PATH=\"${sBinDirectory}:\$PATH\""
+        sExportLine="export PATH=\"${sBinDirectory}:\$PATH\""
     fi
 
     if [ -f "${sRcFile}" ] && grep -qF "${sBinDirectory}" "${sRcFile}" 2>/dev/null; then
@@ -208,9 +207,11 @@ fnConfigureShellPath() {
         return
     fi
 
-    echo "" >> "${sRcFile}"
-    echo "# Added by VVM installer" >> "${sRcFile}"
-    echo "${sExportLine}" >> "${sRcFile}"
+    {
+        echo ""
+        echo "# Added by VVM installer"
+        echo "${sExportLine}"
+    } >> "${sRcFile}"
     echo "[install] Added ${sBinDirectory} to PATH in ${sRcFile}."
     echo "[install] Open a new terminal or run: . ${sRcFile}"
 }
@@ -219,7 +220,7 @@ fnConfigureShellPath() {
 # fnEnableClaude: Mark VVM to include Claude Code in the Docker image
 # ---------------------------------------------------------------------------
 fnEnableClaude() {
-    local sVvmDirectory="$1"
+    sVvmDirectory="$1"
 
     touch "${sVvmDirectory}/.claude_enabled"
     echo "[install] Claude Code will be included in the Docker image."

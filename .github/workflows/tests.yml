@@ -15,7 +15,7 @@ jobs:
           shellcheck -s bash entrypoint.sh
           shellcheck -s bash vvm
           shellcheck -s bash check_isolation.sh
-          shellcheck -s sh install_vvm.sh
+          shellcheck -x -s sh install_vvm.sh
           shellcheck -s sh bin/connect_vvm
 
       - name: hadolint
