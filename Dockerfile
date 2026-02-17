@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lcov \
     gosu \
     sudo \
+    nano \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
@@ -87,6 +89,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
     && mkdir -p /workspace \
     && chown vplanet:vplanet /workspace
 
+ENV GIT_EDITOR=nano
 ENV WORKSPACE=/workspace
 ENV VPLANET_BINARY=/workspace/vplanet/bin/vplanet
 ENV PATH="/workspace/vplanet/bin:/workspace/MaxLEV:${PATH}"

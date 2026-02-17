@@ -7,12 +7,13 @@
 # user's shell configuration.
 #
 # Usage:
-#   sh install_vvm.sh [--claude]
+#   sh install_vvm.sh [-y|--yes] [--claude]
 
 set -e
 
 VVM_REPO="https://github.com/RoryBarnes/vvm.git"
 INSTALL_CLAUDE=false
+ASSUME_YES=false
 
 # ---------------------------------------------------------------------------
 fnPrintError() { echo "ERROR: $1" >&2; }
@@ -23,12 +24,15 @@ fnPrintError() { echo "ERROR: $1" >&2; }
 fnParseArguments() {
     while [ $# -gt 0 ]; do
         case "$1" in
+            -y|--yes)
+                ASSUME_YES=true
+                ;;
             --claude)
                 INSTALL_CLAUDE=true
                 ;;
             *)
                 fnPrintError "Unknown option: $1"
-                echo "Usage: sh install_vvm.sh [--claude]" >&2
+                echo "Usage: sh install_vvm.sh [-y|--yes] [--claude]" >&2
                 exit 1
                 ;;
         esac
@@ -69,7 +73,11 @@ fnDetectMacPackageManager() {
 # ---------------------------------------------------------------------------
 fnInstallMacPorts() {
     echo "[install] Installing docker, colima, and gh via MacPorts..."
-    sudo port install docker colima gh
+    if [ "${ASSUME_YES}" = true ]; then
+        sudo port -N install docker colima gh
+    else
+        sudo port install docker colima gh
+    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -77,7 +85,11 @@ fnInstallMacPorts() {
 # ---------------------------------------------------------------------------
 fnInstallHomebrew() {
     echo "[install] Installing docker, colima, and gh via Homebrew..."
-    brew install docker colima gh
+    if [ "${ASSUME_YES}" = true ]; then
+        NONINTERACTIVE=1 brew install docker colima gh
+    else
+        brew install docker colima gh
+    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -272,4 +284,8 @@ if [ "${INSTALL_CLAUDE}" = true ]; then
     fnEnableClaude "$(pwd)"
 fi
 
-echo "[install] Run 'vvm' to start the Virtual VPLanet Machine."
+if [ "${PLATFORM}" = "Darwin" ]; then
+    echo "[install] After starting Colima, run 'vvm' to launch the Virtual VPLanet Machine."
+else
+    echo "[install] After logging out and back in, run 'vvm' to launch the Virtual VPLanet Machine."
+fi

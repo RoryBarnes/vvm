@@ -26,12 +26,19 @@ utilities directory to your shell's ``PATH``.
     cd vvm
     sh install_vvm.sh
 
-To include `Claude Code <https://docs.anthropic.com/en/docs/claude-code>`_
-in the Docker image, pass the ``--claude`` flag:
+To accept all prompts automatically (no confirmation required), pass
+``-y`` or ``--yes``:
 
 .. code-block:: bash
 
-    sh install_vvm.sh --claude
+    sh install_vvm.sh -y
+
+To include `Claude Code <https://docs.anthropic.com/en/docs/claude-code>`_
+in the Docker image, pass the ``--claude`` flag (flags may be combined):
+
+.. code-block:: bash
+
+    sh install_vvm.sh --yes --claude
 
 The installer adds the ``vvm/bin`` directory to your shell configuration
 (``~/.zshrc``, ``~/.bashrc``, ``~/.bash_profile``, ``~/.config/fish/config.fish``,

@@ -76,6 +76,26 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
     [ "$status" -eq 0 ]
 }
 
+# ---------------------------------------------------------------------------
+# install_vvm.sh argument parsing
+# ---------------------------------------------------------------------------
+
+@test "install_vvm.sh rejects unknown flags" {
+    run sh "${REPO_ROOT}/install_vvm.sh" --bogus
+
+    [ "$status" -eq 1 ]
+}
+
+@test "install_vvm.sh usage mentions -y flag" {
+    run sh "${REPO_ROOT}/install_vvm.sh" --bogus
+
+    [[ "$output" =~ "-y" ]]
+}
+
+# ---------------------------------------------------------------------------
+# Dockerfile.claude
+# ---------------------------------------------------------------------------
+
 @test "Dockerfile.claude exists" {
     [ -f "${REPO_ROOT}/Dockerfile.claude" ]
 }
