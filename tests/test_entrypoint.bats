@@ -88,6 +88,36 @@ teardown() {
 }
 
 # ---------------------------------------------------------------------------
+# fnPersistGitConfig tests
+# ---------------------------------------------------------------------------
+
+@test "fnPersistGitConfig: creates .gitconfig in workspace" {
+    fnPersistGitConfig 2>/dev/null || true
+
+    [ -f "${WORKSPACE}/.gitconfig" ]
+}
+
+@test "fnPersistGitConfig: creates symlink at /home/vplanet/.gitconfig" {
+    if [ ! -d "/home/vplanet" ]; then
+        skip "requires vplanet user (container only)"
+    fi
+
+    fnPersistGitConfig
+
+    [ -L "/home/vplanet/.gitconfig" ]
+    [ "$(readlink /home/vplanet/.gitconfig)" = "${WORKSPACE}/.gitconfig" ]
+}
+
+@test "fnPersistGitConfig: preserves existing config content" {
+    echo "[user]" > "${WORKSPACE}/.gitconfig"
+    echo "    name = Test User" >> "${WORKSPACE}/.gitconfig"
+
+    fnPersistGitConfig 2>/dev/null || true
+
+    grep -q "Test User" "${WORKSPACE}/.gitconfig"
+}
+
+# ---------------------------------------------------------------------------
 # fnPersistClaudeConfig tests
 # ---------------------------------------------------------------------------
 

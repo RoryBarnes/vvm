@@ -197,6 +197,16 @@ fnInstallAllRepos() {
 }
 
 # ---------------------------------------------------------------------------
+# fnPersistGitConfig: Symlink .gitconfig to the workspace volume
+# ---------------------------------------------------------------------------
+fnPersistGitConfig() {
+    local sVolumeConfig="${WORKSPACE}/.gitconfig"
+
+    touch "${sVolumeConfig}"
+    ln -sfn "${sVolumeConfig}" /home/vplanet/.gitconfig
+}
+
+# ---------------------------------------------------------------------------
 # fnPersistClaudeConfig: Symlink Claude Code config to the workspace volume
 # ---------------------------------------------------------------------------
 fnPersistClaudeConfig() {
@@ -233,6 +243,7 @@ fnPrintSummary() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -euo pipefail
     fnPrintBanner
+    fnPersistGitConfig
     if command -v claude > /dev/null 2>&1; then
         fnPersistClaudeConfig
     fi
