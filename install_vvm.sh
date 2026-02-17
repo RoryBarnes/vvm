@@ -72,11 +72,11 @@ fnDetectMacPackageManager() {
 # fnInstallMacPorts: Install Docker, Colima, and gh via MacPorts
 # ---------------------------------------------------------------------------
 fnInstallMacPorts() {
-    echo "[install] Installing docker, colima, and gh via MacPorts..."
+    echo "[install] Installing docker, colima, gh, and XQuartz via MacPorts..."
     if [ "${ASSUME_YES}" = true ]; then
-        sudo port -N install docker colima gh
+        sudo port -N install docker colima gh xorg-server
     else
-        sudo port install docker colima gh
+        sudo port install docker colima gh xorg-server
     fi
 }
 
@@ -84,11 +84,13 @@ fnInstallMacPorts() {
 # fnInstallHomebrew: Install Docker, Colima, and gh via Homebrew
 # ---------------------------------------------------------------------------
 fnInstallHomebrew() {
-    echo "[install] Installing docker, colima, and gh via Homebrew..."
+    echo "[install] Installing docker, colima, gh, and XQuartz via Homebrew..."
     if [ "${ASSUME_YES}" = true ]; then
         NONINTERACTIVE=1 brew install docker colima gh
+        NONINTERACTIVE=1 brew install --cask xquartz
     else
         brew install docker colima gh
+        brew install --cask xquartz
     fi
 }
 

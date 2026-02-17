@@ -53,20 +53,27 @@ below for your platform.
 macOS
 -----
 
-**1. Install Docker CLI, Colima, and git**
+**1. Install Docker CLI, Colima, XQuartz, and git**
 
 `Colima <https://github.com/abiosoft/colima>`_ provides a lightweight Docker
-daemon on macOS. Install via MacPorts:
+daemon on macOS. `XQuartz <https://www.xquartz.org/>`_ provides X11 support
+for displaying matplotlib figures. Install via MacPorts:
 
 .. code-block:: bash
 
-    sudo port install docker colima
+    sudo port install docker colima xorg-server
 
 Or via Homebrew:
 
 .. code-block:: bash
 
     brew install docker colima
+    brew install --cask xquartz
+
+After installing XQuartz, open **XQuartz > Settings > Security** and
+enable *Allow connections from network clients*. Log out of macOS and
+back in once for the change to take effect. XQuartz must be running
+before you start ``vvm`` for ``plt.show()`` to work.
 
 **2. Start Colima**
 

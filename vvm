@@ -177,6 +177,16 @@ fnStartContainer() {
         echo "[vvm]   Run: gh auth login"
     fi
 
+    # X11 forwarding for matplotlib plt.show()
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        if command -v xquartz > /dev/null 2>&1 || [ -d "/opt/X11" ]; then
+            daRunArgs+=(-e "DISPLAY=host.docker.internal:0")
+        fi
+    elif [ -n "${DISPLAY:-}" ]; then
+        daRunArgs+=(-e "DISPLAY=${DISPLAY}")
+        daRunArgs+=(-v "/tmp/.X11-unix:/tmp/.X11-unix")
+    fi
+
     "${DOCKER}" run "${daRunArgs[@]}" "${VVM_IMAGE}" "$@"
 }
 
