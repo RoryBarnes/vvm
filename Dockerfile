@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     nano \
     vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/include/hdf5/serial/*.h /usr/include/
 
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
 RUN add-apt-repository -y ppa:deadsnakes/ppa \
