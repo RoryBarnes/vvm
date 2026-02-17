@@ -165,16 +165,16 @@ interactive matplotlib figures (``plt.show()``) render in a window on
 your desktop.
 
 **macOS** requires `XQuartz <https://www.xquartz.org/>`_, which the
-installer sets up automatically. After installing XQuartz:
+installer sets up automatically. After installing XQuartz, a one-time
+configuration step is needed:
 
-1. Launch XQuartz (it must be running before you start ``vvm``).
-2. Open **XQuartz > Settings > Security** and enable
+1. Open **XQuartz > Settings > Security** and enable
    *Allow connections from network clients*.
-3. Log out of macOS and back in (required once after enabling the
+2. Log out of macOS and back in (required once after enabling the
    setting).
 
-``VVM`` detects XQuartz and sets ``DISPLAY=host.docker.internal:0``
-automatically.
+``VVM`` starts XQuartz automatically when you run ``vvm`` and sets
+``DISPLAY=host.docker.internal:0``.
 
 **Linux** uses the host's native X11 server. No extra setup is needed;
 ``VVM`` passes through ``$DISPLAY`` and the X11 socket automatically.
