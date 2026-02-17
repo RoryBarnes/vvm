@@ -32,6 +32,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -s /usr/lib/"$(uname -m)"-linux-gnu/hdf5/serial/libhdf5*.so* \
              /usr/lib/"$(uname -m)"-linux-gnu/
 
+# LaTeX for matplotlib's tex rendering (required by vplot)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    cm-super \
+    dvipng \
+    && rm -rf /var/lib/apt/lists/*
+
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
 RUN add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update \
@@ -40,6 +49,7 @@ RUN add-apt-repository -y ppa:deadsnakes/ppa \
     python3.11-dev \
     python3.11-venv \
     python3.11-distutils \
+    python3.11-tk \
     && rm -rf /var/lib/apt/lists/*
 
 # Make python3.11 the default
