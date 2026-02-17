@@ -124,12 +124,17 @@ fnBuildVplanet() {
         sRepoPath="${WORKSPACE}/vplanet"
         echo "[vvm] Building vplanet from public repository..."
     else
-        echo "[vvm] ERROR: No vplanet source found."
-        return 1
+        echo "[vvm] WARNING: No vplanet source found. Skipping build."
+        return 0
     fi
 
     cd "${sRepoPath}"
-    make opt
+    if ! make opt; then
+        echo "[vvm] WARNING: vplanet build failed. You can retry manually:"
+        echo "[vvm]   cd ${sRepoPath} && make opt"
+        cd "${WORKSPACE}"
+        return 0
+    fi
     cd "${WORKSPACE}"
 
     VPLANET_BINARY="${sRepoPath}/bin/vplanet"
@@ -139,8 +144,7 @@ fnBuildVplanet() {
         echo "[vvm] vplanet binary ready: ${VPLANET_BINARY}"
         "${VPLANET_BINARY}" -v 2>/dev/null || true
     else
-        echo "[vvm] ERROR: vplanet binary not found after build."
-        return 1
+        echo "[vvm] WARNING: vplanet binary not found after build."
     fi
 }
 
