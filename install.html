@@ -107,9 +107,14 @@ utilities directory to your shell’s <code class="docutils literal notranslate"
 sh<span class="w"> </span>install_vvm.sh
 </pre></div>
 </div>
+<p>To accept all prompts automatically (no confirmation required), pass
+<code class="docutils literal notranslate"><span class="pre">-y</span></code> or <code class="docutils literal notranslate"><span class="pre">--yes</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>-y
+</pre></div>
+</div>
 <p>To include <a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>
-in the Docker image, pass the <code class="docutils literal notranslate"><span class="pre">--claude</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--claude
+in the Docker image, pass the <code class="docutils literal notranslate"><span class="pre">--claude</span></code> flag (flags may be combined):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--yes<span class="w"> </span>--claude
 </pre></div>
 </div>
 <p>The installer adds the <code class="docutils literal notranslate"><span class="pre">vvm/bin</span></code> directory to your shell configuration
