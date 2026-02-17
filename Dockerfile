@@ -29,8 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/include/hdf5/serial/*.h /usr/include/ \
-    && ln -s /usr/lib/$(uname -m)-linux-gnu/hdf5/serial/libhdf5*.so* \
-             /usr/lib/$(uname -m)-linux-gnu/
+    && ln -s /usr/lib/"$(uname -m)"-linux-gnu/hdf5/serial/libhdf5*.so* \
+             /usr/lib/"$(uname -m)"-linux-gnu/
 
 # Python 3.11 from deadsnakes PPA (separate layer for fresh apt index)
 RUN add-apt-repository -y ppa:deadsnakes/ppa \
