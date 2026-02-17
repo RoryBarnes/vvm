@@ -134,6 +134,9 @@ git<span class="w"> </span>status<span class="w">                               
 <p>Repositories persist in a Docker named volume (<code class="docutils literal notranslate"><span class="pre">vvm-workspace</span></code>) across
 container restarts. <em>Cloned repos, local commits, and branch checkouts all
 survive between sessions.</em> Only <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--destroy</span></code> removes the volume.</p>
+<p>Git configuration (<code class="docutils literal notranslate"><span class="pre">~/.gitconfig</span></code>) is also stored on the volume, so
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">config</span> <span class="pre">--global</span> <span class="pre">user.name</span></code> and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">config</span> <span class="pre">--global</span> <span class="pre">user.email</span></code>
+only need to be set once.</p>
 <p>The container itself is ephemeral (<code class="docutils literal notranslate"><span class="pre">--rm</span></code>). No container state persists
 outside the volume.</p>
 </section>
