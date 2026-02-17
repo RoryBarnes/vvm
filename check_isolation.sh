@@ -19,7 +19,7 @@ fnCheckBindMounts() {
     fnPrintHeader "Filesystem Bind Mounts"
 
     # Known safe mount types that Docker manages internally
-    local saSafePaths=("/proc" "/dev" "/sys" "/etc/resolv.conf" "/etc/hostname" "/etc/hosts")
+    local saSafePaths=("/proc" "/dev" "/sys" "/etc/resolv.conf" "/etc/hostname" "/etc/hosts" "/tmp/.X11-unix")
 
     local bFoundBindMount=false
 
