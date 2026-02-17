@@ -128,16 +128,22 @@ below for your platform.</p>
 </section>
 <section id="macos">
 <h2>macOS<a class="headerlink" href="#macos" title="Link to this heading"></a></h2>
-<p><strong>1. Install Docker CLI, Colima, and git</strong></p>
+<p><strong>1. Install Docker CLI, Colima, XQuartz, and git</strong></p>
 <p><a class="reference external" href="https://github.com/abiosoft/colima">Colima</a> provides a lightweight Docker
-daemon on macOS. Install via MacPorts:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima
+daemon on macOS. <a class="reference external" href="https://www.xquartz.org/">XQuartz</a> provides X11 support
+for displaying matplotlib figures. Install via MacPorts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>xorg-server
 </pre></div>
 </div>
 <p>Or via Homebrew:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima
+brew<span class="w"> </span>install<span class="w"> </span>--cask<span class="w"> </span>xquartz
 </pre></div>
 </div>
+<p>After installing XQuartz, open <strong>XQuartz &gt; Settings &gt; Security</strong> and
+enable <em>Allow connections from network clients</em>. Log out of macOS and
+back in once for the change to take effect. XQuartz must be running
+before you start <code class="docutils literal notranslate"><span class="pre">vvm</span></code> for <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> to work.</p>
 <p><strong>2. Start Colima</strong></p>
 <p>Start the VM and allocate CPU cores (total minus one is recommended):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>

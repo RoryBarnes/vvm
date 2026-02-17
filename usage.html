@@ -53,6 +53,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#branch-management">Branch Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#git-workflow">Git Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#repos-conf">repos.conf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display-forwarding">Display Forwarding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#claude-code-optional">Claude Code (Optional)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#container-utilities">Container Utilities</a></li>
@@ -226,6 +227,27 @@ method, separated by pipes:</p>
 <p>Order matters: repositories are cloned and installed in the order listed.</p>
 <p>To add a new repository, append a line to <code class="docutils literal notranslate"><span class="pre">repos.conf</span></code> and run
 <code class="docutils literal notranslate"><span class="pre">vvm</span> <span class="pre">--build</span></code> to rebuild the image.</p>
+</section>
+<section id="display-forwarding">
+<h2>Display Forwarding<a class="headerlink" href="#display-forwarding" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> forwards the host’s X11 display into the container so that
+interactive matplotlib figures (<code class="docutils literal notranslate"><span class="pre">plt.show()</span></code>) render in a window on
+your desktop.</p>
+<p><strong>macOS</strong> requires <a class="reference external" href="https://www.xquartz.org/">XQuartz</a>, which the
+installer sets up automatically. After installing XQuartz:</p>
+<ol class="arabic simple">
+<li><p>Launch XQuartz (it must be running before you start <code class="docutils literal notranslate"><span class="pre">vvm</span></code>).</p></li>
+<li><p>Open <strong>XQuartz &gt; Settings &gt; Security</strong> and enable
+<em>Allow connections from network clients</em>.</p></li>
+<li><p>Log out of macOS and back in (required once after enabling the
+setting).</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> detects XQuartz and sets <code class="docutils literal notranslate"><span class="pre">DISPLAY=host.docker.internal:0</span></code>
+automatically.</p>
+<p><strong>Linux</strong> uses the host’s native X11 server. No extra setup is needed;
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> passes through <code class="docutils literal notranslate"><span class="pre">$DISPLAY</span></code> and the X11 socket automatically.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> produces a blank or missing window, verify that
+XQuartz (macOS) or an X server (Linux) is running.</p>
 </section>
 <section id="vs-code">
 <h2>VS Code<a class="headerlink" href="#vs-code" title="Link to this heading"></a></h2>

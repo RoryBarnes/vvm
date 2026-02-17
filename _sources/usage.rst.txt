@@ -157,6 +157,31 @@ Order matters: repositories are cloned and installed in the order listed.
 To add a new repository, append a line to ``repos.conf`` and run
 ``vvm --build`` to rebuild the image.
 
+Display Forwarding
+------------------
+
+``VVM`` forwards the host's X11 display into the container so that
+interactive matplotlib figures (``plt.show()``) render in a window on
+your desktop.
+
+**macOS** requires `XQuartz <https://www.xquartz.org/>`_, which the
+installer sets up automatically. After installing XQuartz:
+
+1. Launch XQuartz (it must be running before you start ``vvm``).
+2. Open **XQuartz > Settings > Security** and enable
+   *Allow connections from network clients*.
+3. Log out of macOS and back in (required once after enabling the
+   setting).
+
+``VVM`` detects XQuartz and sets ``DISPLAY=host.docker.internal:0``
+automatically.
+
+**Linux** uses the host's native X11 server. No extra setup is needed;
+``VVM`` passes through ``$DISPLAY`` and the X11 socket automatically.
+
+If ``plt.show()`` produces a blank or missing window, verify that
+XQuartz (macOS) or an X server (Linux) is running.
+
 VS Code
 -------
 
