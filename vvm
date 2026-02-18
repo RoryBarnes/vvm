@@ -52,6 +52,23 @@ trap fnCleanup EXIT
 DOCKER=""
 
 # ---------------------------------------------------------------------------
+# fnDisableX11Auth: Allow Docker containers to connect to the X11 display
+# ---------------------------------------------------------------------------
+fnDisableX11Auth() {
+    local sXhost=""
+    if command -v xhost > /dev/null 2>&1; then
+        sXhost="xhost"
+    elif [ -x "/opt/local/bin/xhost" ]; then
+        sXhost="/opt/local/bin/xhost"
+    elif [ -x "/opt/X11/bin/xhost" ]; then
+        sXhost="/opt/X11/bin/xhost"
+    fi
+    if [ -n "${sXhost}" ]; then
+        "${sXhost}" + > /dev/null 2>&1 || true
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # fnCheckDocker: Find the Docker binary and verify the daemon is reachable
 # ---------------------------------------------------------------------------
 fnCheckDocker() {
@@ -187,6 +204,7 @@ fnStartContainer() {
                 open -ga XQuartz
                 sleep 2
             fi
+            fnDisableX11Auth
             daRunArgs+=(-e "DISPLAY=host.docker.internal:0")
         fi
     elif [ -n "${DISPLAY:-}" ]; then
