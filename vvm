@@ -52,6 +52,23 @@ trap fnCleanup EXIT
 DOCKER=""
 
 # ---------------------------------------------------------------------------
+# fnDisableX11Auth: Allow Docker containers to connect to the X11 display
+# ---------------------------------------------------------------------------
+fnDisableX11Auth() {
+    local sXhost=""
+    if command -v xhost > /dev/null 2>&1; then
+        sXhost="xhost"
+    elif [ -x "/opt/local/bin/xhost" ]; then
+        sXhost="/opt/local/bin/xhost"
+    elif [ -x "/opt/X11/bin/xhost" ]; then
+        sXhost="/opt/X11/bin/xhost"
+    fi
+    if [ -n "${sXhost}" ]; then
+        "${sXhost}" + > /dev/null 2>&1 || true
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # fnCheckDocker: Find the Docker binary and verify the daemon is reachable
 # ---------------------------------------------------------------------------
 fnCheckDocker() {
@@ -180,9 +197,20 @@ fnStartContainer() {
     # X11 forwarding for matplotlib plt.show()
     if [[ "$(uname -s)" == "Darwin" ]]; then
         if command -v xquartz > /dev/null 2>&1 || [ -d "/opt/X11" ]; then
+            if ! pgrep -x Xquartz > /dev/null 2>&1 \
+                && ! pgrep -x X11.bin > /dev/null 2>&1 \
+                && ! pgrep -x X11 > /dev/null 2>&1; then
+                echo "[vvm] Starting XQuartz..."
+                open -ga XQuartz
+                sleep 2
+            fi
+            fnDisableX11Auth
             daRunArgs+=(-e "DISPLAY=host.docker.internal:0")
         fi
     elif [ -n "${DISPLAY:-}" ]; then
+        if command -v xhost > /dev/null 2>&1; then
+            xhost +local:docker > /dev/null 2>&1 || true
+        fi
         daRunArgs+=(-e "DISPLAY=${DISPLAY}")
         daRunArgs+=(-v "/tmp/.X11-unix:/tmp/.X11-unix")
     fi

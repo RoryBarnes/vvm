@@ -72,11 +72,11 @@ fnDetectMacPackageManager() {
 # fnInstallMacPorts: Install Docker, Colima, and gh via MacPorts
 # ---------------------------------------------------------------------------
 fnInstallMacPorts() {
-    echo "[install] Installing docker, colima, gh, and XQuartz via MacPorts..."
+    echo "[install] Installing docker, colima, gh, XQuartz, and xhost via MacPorts..."
     if [ "${ASSUME_YES}" = true ]; then
-        sudo port -N install docker colima gh xorg-server
+        sudo port -N install docker colima gh xorg-server xhost
     else
-        sudo port install docker colima gh xorg-server
+        sudo port install docker colima gh xorg-server xhost
     fi
 }
 

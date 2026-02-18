@@ -164,23 +164,52 @@ Display Forwarding
 interactive matplotlib figures (``plt.show()``) render in a window on
 your desktop.
 
-**macOS** requires `XQuartz <https://www.xquartz.org/>`_, which the
-installer sets up automatically. After installing XQuartz:
+**macOS** requires `XQuartz <https://www.xquartz.org/>`_ and ``xhost``,
+both of which the installer sets up automatically. After installing
+XQuartz, a one-time configuration step is needed:
 
-1. Launch XQuartz (it must be running before you start ``vvm``).
-2. Open **XQuartz > Settings > Security** and enable
+1. Open **XQuartz > Settings > Security** and enable
    *Allow connections from network clients*.
-3. Log out of macOS and back in (required once after enabling the
-   setting).
+2. Log out of macOS and log back in (required once for the TCP listener
+   to activate).
 
-``VVM`` detects XQuartz and sets ``DISPLAY=host.docker.internal:0``
-automatically.
+When you run ``vvm``, it automatically:
+
+- Starts XQuartz if it is not already running.
+- Runs ``xhost +`` to allow the container to connect.
+- Sets ``DISPLAY=host.docker.internal:0`` inside the container.
+
+.. note::
+
+   If you installed XQuartz via MacPorts, you also need the ``xhost``
+   package (``sudo port install xhost``). The Homebrew XQuartz cask
+   includes ``xhost`` already.
 
 **Linux** uses the host's native X11 server. No extra setup is needed;
-``VVM`` passes through ``$DISPLAY`` and the X11 socket automatically.
+``VVM`` grants container access via ``xhost``, passes through
+``$DISPLAY``, and mounts the X11 socket automatically.
 
-If ``plt.show()`` produces a blank or missing window, verify that
-XQuartz (macOS) or an X server (Linux) is running.
+**Troubleshooting display issues:**
+
+If ``plt.show()`` does not open a window, check the following:
+
+1. Verify XQuartz (macOS) or an X server (Linux) is running.
+2. Confirm the one-time XQuartz configuration above was completed,
+   including the logout/login step.
+3. Ensure the matplotlib backend is set to ``TkAgg``, not ``Agg``:
+
+   .. code-block:: python
+
+      import matplotlib
+      print(matplotlib.get_backend())  # Should print "TkAgg"
+
+   If it prints ``agg``, set the backend before importing pyplot:
+
+   .. code-block:: python
+
+      import matplotlib
+      matplotlib.use("TkAgg")
+      import matplotlib.pyplot as plt
 
 VS Code
 -------
