@@ -87,8 +87,9 @@
   <section id="installation-guide">
 <h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> requires <strong>Docker</strong> and <strong>git</strong> on the host machine. macOS also
-requires a lightweight VM (Colima) to run Linux containers. No GitHub
-account or authentication is needed for the default installation.</p>
+requires a lightweight VM (Colima) and an X11 server (XQuartz) to run
+Linux containers and display interactive figures. No GitHub account or
+authentication is needed for the default installation.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A fresh <code class="docutils literal notranslate"><span class="pre">VVM</span></code> install takes approximately <strong>30 minutes</strong> on a typical
@@ -132,7 +133,7 @@ below for your platform.</p>
 <p><a class="reference external" href="https://github.com/abiosoft/colima">Colima</a> provides a lightweight Docker
 daemon on macOS. <a class="reference external" href="https://www.xquartz.org/">XQuartz</a> provides X11 support
 for displaying matplotlib figures. Install via MacPorts:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>xorg-server
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>colima<span class="w"> </span>xorg-server<span class="w"> </span>xhost
 </pre></div>
 </div>
 <p>Or via Homebrew:</p>
@@ -140,10 +141,15 @@ for displaying matplotlib figures. Install via MacPorts:</p>
 brew<span class="w"> </span>install<span class="w"> </span>--cask<span class="w"> </span>xquartz
 </pre></div>
 </div>
-<p>After installing XQuartz, open <strong>XQuartz &gt; Settings &gt; Security</strong> and
-enable <em>Allow connections from network clients</em>. Log out of macOS and
-back in once for the change to take effect. XQuartz must be running
-before you start <code class="docutils literal notranslate"><span class="pre">vvm</span></code> for <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> to work.</p>
+<p>After installing XQuartz, a one-time configuration step is needed:</p>
+<ol class="arabic simple">
+<li><p>Open <strong>XQuartz &gt; Settings &gt; Security</strong> and enable
+<em>Allow connections from network clients</em>.</p></li>
+<li><p>Log out of macOS and log back in (required once for the TCP listener
+to activate).</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> starts XQuartz and disables X11 access control automatically
+each time you run <code class="docutils literal notranslate"><span class="pre">vvm</span></code>.</p>
 <p><strong>2. Start Colima</strong></p>
 <p>Start the VM and allocate CPU cores (total minus one is recommended):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colima<span class="w"> </span>start<span class="w"> </span>--cpu<span class="w"> </span><span class="k">$((</span><span class="w"> </span><span class="k">$(</span>sysctl<span class="w"> </span>-n<span class="w"> </span>hw.ncpu<span class="k">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">))</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8</span>

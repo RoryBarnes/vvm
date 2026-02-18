@@ -233,21 +233,49 @@ method, separated by pipes:</p>
 <p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> forwards the host’s X11 display into the container so that
 interactive matplotlib figures (<code class="docutils literal notranslate"><span class="pre">plt.show()</span></code>) render in a window on
 your desktop.</p>
-<p><strong>macOS</strong> requires <a class="reference external" href="https://www.xquartz.org/">XQuartz</a>, which the
-installer sets up automatically. After installing XQuartz:</p>
+<p><strong>macOS</strong> requires <a class="reference external" href="https://www.xquartz.org/">XQuartz</a> and <code class="docutils literal notranslate"><span class="pre">xhost</span></code>,
+both of which the installer sets up automatically. After installing
+XQuartz, a one-time configuration step is needed:</p>
 <ol class="arabic simple">
-<li><p>Launch XQuartz (it must be running before you start <code class="docutils literal notranslate"><span class="pre">vvm</span></code>).</p></li>
 <li><p>Open <strong>XQuartz &gt; Settings &gt; Security</strong> and enable
 <em>Allow connections from network clients</em>.</p></li>
-<li><p>Log out of macOS and back in (required once after enabling the
-setting).</p></li>
+<li><p>Log out of macOS and log back in (required once for the TCP listener
+to activate).</p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> detects XQuartz and sets <code class="docutils literal notranslate"><span class="pre">DISPLAY=host.docker.internal:0</span></code>
-automatically.</p>
+<p>When you run <code class="docutils literal notranslate"><span class="pre">vvm</span></code>, it automatically:</p>
+<ul class="simple">
+<li><p>Starts XQuartz if it is not already running.</p></li>
+<li><p>Runs <code class="docutils literal notranslate"><span class="pre">xhost</span> <span class="pre">+</span></code> to allow the container to connect.</p></li>
+<li><p>Sets <code class="docutils literal notranslate"><span class="pre">DISPLAY=host.docker.internal:0</span></code> inside the container.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you installed XQuartz via MacPorts, you also need the <code class="docutils literal notranslate"><span class="pre">xhost</span></code>
+package (<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">port</span> <span class="pre">install</span> <span class="pre">xhost</span></code>). The Homebrew XQuartz cask
+includes <code class="docutils literal notranslate"><span class="pre">xhost</span></code> already.</p>
+</div>
 <p><strong>Linux</strong> uses the host’s native X11 server. No extra setup is needed;
-<code class="docutils literal notranslate"><span class="pre">VVM</span></code> passes through <code class="docutils literal notranslate"><span class="pre">$DISPLAY</span></code> and the X11 socket automatically.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> produces a blank or missing window, verify that
-XQuartz (macOS) or an X server (Linux) is running.</p>
+<code class="docutils literal notranslate"><span class="pre">VVM</span></code> grants container access via <code class="docutils literal notranslate"><span class="pre">xhost</span></code>, passes through
+<code class="docutils literal notranslate"><span class="pre">$DISPLAY</span></code>, and mounts the X11 socket automatically.</p>
+<p><strong>Troubleshooting display issues:</strong></p>
+<p>If <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> does not open a window, check the following:</p>
+<ol class="arabic">
+<li><p>Verify XQuartz (macOS) or an X server (Linux) is running.</p></li>
+<li><p>Confirm the one-time XQuartz configuration above was completed,
+including the logout/login step.</p></li>
+<li><p>Ensure the matplotlib backend is set to <code class="docutils literal notranslate"><span class="pre">TkAgg</span></code>, not <code class="docutils literal notranslate"><span class="pre">Agg</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">get_backend</span><span class="p">())</span>  <span class="c1"># Should print &quot;TkAgg&quot;</span>
+</pre></div>
+</div>
+<p>If it prints <code class="docutils literal notranslate"><span class="pre">agg</span></code>, set the backend before importing pyplot:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;TkAgg&quot;</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</li>
+</ol>
 </section>
 <section id="vs-code">
 <h2>VS Code<a class="headerlink" href="#vs-code" title="Link to this heading"></a></h2>

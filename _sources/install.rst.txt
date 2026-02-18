@@ -2,8 +2,9 @@ Installation Guide
 ==================
 
 ``VVM`` requires **Docker** and **git** on the host machine. macOS also
-requires a lightweight VM (Colima) to run Linux containers. No GitHub
-account or authentication is needed for the default installation.
+requires a lightweight VM (Colima) and an X11 server (XQuartz) to run
+Linux containers and display interactive figures. No GitHub account or
+authentication is needed for the default installation.
 
 .. note::
 
@@ -61,7 +62,7 @@ for displaying matplotlib figures. Install via MacPorts:
 
 .. code-block:: bash
 
-    sudo port install docker colima xorg-server
+    sudo port install docker colima xorg-server xhost
 
 Or via Homebrew:
 
@@ -70,10 +71,15 @@ Or via Homebrew:
     brew install docker colima
     brew install --cask xquartz
 
-After installing XQuartz, open **XQuartz > Settings > Security** and
-enable *Allow connections from network clients*. Log out of macOS and
-back in once for the change to take effect. XQuartz must be running
-before you start ``vvm`` for ``plt.show()`` to work.
+After installing XQuartz, a one-time configuration step is needed:
+
+1. Open **XQuartz > Settings > Security** and enable
+   *Allow connections from network clients*.
+2. Log out of macOS and log back in (required once for the TCP listener
+   to activate).
+
+``VVM`` starts XQuartz and disables X11 access control automatically
+each time you run ``vvm``.
 
 **2. Start Colima**
 
