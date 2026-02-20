@@ -18,6 +18,9 @@ jobs:
           shellcheck -x -s sh install_vvm.sh
           shellcheck -s sh uninstall_vvm.sh
           shellcheck -s sh bin/connect_vvm
+          shellcheck -s sh bin/vvm_push
+          shellcheck -s sh bin/vvm_pull
+          shellcheck -s bash completions/vvm.bash
 
       - name: hadolint
         uses: hadolint/hadolint-action@v3.1.0

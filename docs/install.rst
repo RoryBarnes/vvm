@@ -44,8 +44,10 @@ in the Docker image, pass the ``--claude`` flag (flags may be combined):
 The installer adds the ``vvm/bin`` directory to your shell configuration
 (``~/.zshrc``, ``~/.bashrc``, ``~/.bash_profile``, ``~/.config/fish/config.fish``,
 or ``~/.profile`` depending on your shell). This makes utilities like
-``connect_vvm`` available from any terminal. Open a new terminal or source
-your shell config for the change to take effect.
+``connect_vvm`` available from any terminal. It also configures
+tab-completion for ``vvm``, ``vvm_push``, and ``vvm_pull`` in bash and
+zsh (see :doc:`usage` for details). Open a new terminal or source your
+shell config for the changes to take effect.
 
 The script supports macOS (MacPorts or Homebrew), Ubuntu/Debian, and
 Fedora/RHEL. If you prefer to install manually, follow the instructions

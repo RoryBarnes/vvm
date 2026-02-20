@@ -121,7 +121,8 @@ fnRemovePathEntry() {
         fi
         sTempFile="${sFile}.vvm_uninstall_tmp"
         { grep -v "Added by VVM installer" "${sFile}" \
-            | grep -v "/vvm/bin"; } > "${sTempFile}" || true
+            | grep -v "/vvm/bin" \
+            | grep -v "/vvm/completions/"; } > "${sTempFile}" || true
         mv "${sTempFile}" "${sFile}"
         echo "[uninstall] Removed VVM PATH entry from ${sFile}."
     done

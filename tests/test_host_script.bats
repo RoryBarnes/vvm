@@ -209,6 +209,69 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 }
 
 # ---------------------------------------------------------------------------
+# Completion script syntax
+# ---------------------------------------------------------------------------
+
+@test "completions/vvm.bash has valid bash syntax" {
+    run bash -n "${REPO_ROOT}/completions/vvm.bash"
+
+    [ "$status" -eq 0 ]
+}
+
+@test "completions/vvm.zsh has valid bash-compatible syntax" {
+    run bash -n "${REPO_ROOT}/completions/vvm.zsh"
+
+    [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Completion helper: container path listing
+# ---------------------------------------------------------------------------
+
+@test "_fnListContainerPaths returns paths from mock docker" {
+    docker() {
+        case "$1" in
+            container) return 0 ;;
+            exec)
+                printf "/workspace/vplanet/\n/workspace/vplot/\n"
+                ;;
+        esac
+    }
+    export -f docker
+
+    source "${REPO_ROOT}/completions/vvm.bash"
+    run _fnListContainerPaths "vpl"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "vplanet/" ]]
+    [[ "$output" =~ "vplot/" ]]
+}
+
+@test "_fnListContainerPaths returns nothing when container not running" {
+    docker() {
+        case "$1" in
+            container) return 1 ;;
+        esac
+    }
+    export -f docker
+
+    source "${REPO_ROOT}/completions/vvm.bash"
+    run _fnListContainerPaths "vpl"
+
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
+}
+
+@test "_fnListContainerPaths returns nothing when docker not found" {
+    PATH="/usr/bin:/bin"
+    source "${REPO_ROOT}/completions/vvm.bash"
+    run _fnListContainerPaths "vpl"
+
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
+}
+
+# ---------------------------------------------------------------------------
 # Dockerfile.claude
 # ---------------------------------------------------------------------------
 

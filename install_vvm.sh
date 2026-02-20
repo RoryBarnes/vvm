@@ -174,6 +174,7 @@ fnCloneAndLink() {
     sudo ln -sf "$(pwd)/vvm" "${sBinDir}/vvm"
 
     fnConfigureShellPath "$(pwd)/bin"
+    fnConfigureCompletions "$(pwd)"
 }
 
 # ---------------------------------------------------------------------------
@@ -230,6 +231,47 @@ fnConfigureShellPath() {
     } >> "${sRcFile}"
     echo "[install] Added ${sBinDirectory} to PATH in ${sRcFile}."
     echo "[install] Open a new terminal or run: . ${sRcFile}"
+}
+
+# ---------------------------------------------------------------------------
+# fnConfigureCompletions: Source the appropriate tab-completion script
+# Arguments: sVvmDirectory
+# ---------------------------------------------------------------------------
+fnConfigureCompletions() {
+    sVvmDirectory="$1"
+    sShellName="$(basename "${SHELL:-/bin/sh}")"
+
+    case "${sShellName}" in
+        bash)
+            sCompletionFile="${sVvmDirectory}/completions/vvm.bash"
+            if [ "$(uname -s)" = "Darwin" ]; then
+                sRcFile="${HOME}/.bash_profile"
+            else
+                sRcFile="${HOME}/.bashrc"
+            fi
+            ;;
+        zsh)
+            sCompletionFile="${sVvmDirectory}/completions/vvm.zsh"
+            sRcFile="${HOME}/.zshrc"
+            ;;
+        *)
+            return
+            ;;
+    esac
+
+    sSourceLine="[ -f \"${sCompletionFile}\" ] && . \"${sCompletionFile}\""
+
+    if [ -f "${sRcFile}" ] && grep -qF "/vvm/completions/" "${sRcFile}" 2>/dev/null; then
+        echo "[install] Completions already configured in ${sRcFile}."
+        return
+    fi
+
+    {
+        echo ""
+        echo "# Added by VVM installer"
+        echo "${sSourceLine}"
+    } >> "${sRcFile}"
+    echo "[install] Added tab-completion to ${sRcFile}."
 }
 
 # ---------------------------------------------------------------------------
