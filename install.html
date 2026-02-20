@@ -121,8 +121,10 @@ in the Docker image, pass the <code class="docutils literal notranslate"><span c
 <p>The installer adds the <code class="docutils literal notranslate"><span class="pre">vvm/bin</span></code> directory to your shell configuration
 (<code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.bash_profile</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.config/fish/config.fish</span></code>,
 or <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code> depending on your shell). This makes utilities like
-<code class="docutils literal notranslate"><span class="pre">connect_vvm</span></code> available from any terminal. Open a new terminal or source
-your shell config for the change to take effect.</p>
+<code class="docutils literal notranslate"><span class="pre">connect_vvm</span></code> available from any terminal. It also configures
+tab-completion for <code class="docutils literal notranslate"><span class="pre">vvm</span></code>, <code class="docutils literal notranslate"><span class="pre">vvm_push</span></code>, and <code class="docutils literal notranslate"><span class="pre">vvm_pull</span></code> in bash and
+zsh (see <a class="reference internal" href="usage.html"><span class="doc">Usage</span></a> for details). Open a new terminal or source your
+shell config for the changes to take effect.</p>
 <p>The script supports macOS (MacPorts or Homebrew), Ubuntu/Debian, and
 Fedora/RHEL. If you prefer to install manually, follow the instructions
 below for your platform.</p>

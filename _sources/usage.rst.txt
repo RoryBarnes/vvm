@@ -312,6 +312,50 @@ The script checks for host bind mounts, listening network ports, Docker
 socket access, and privileged mode. All checks should pass under normal
 ``VVM`` operation.
 
+Tab Completion
+~~~~~~~~~~~~~~
+
+``VVM`` provides tab-completion for ``vvm``, ``vvm_push``, and ``vvm_pull``
+in bash and zsh. The installer configures completion automatically.
+
+**vvm** completes command-line flags (``--build``, ``--status``,
+``--destroy``, ``--help``).
+
+**vvm_pull** completes container paths for all positional arguments.
+Pressing ``Tab`` queries the running container's ``/workspace`` directory
+and offers matching entries. Directories appear with a trailing ``/`` so
+you can continue typing into subdirectories. If the container is not
+running, completion silently falls back to local file paths.
+
+**vvm_push** completes local file paths for source arguments (the default
+behavior) and switches to container path completion for the destination
+argument. Once at least one source path has been typed, subsequent
+arguments offer container path completion.
+
+Options (``-a``, ``-L``, ``-r``, ``-R``, ``--help``) are completed for
+both ``vvm_push`` and ``vvm_pull`` when the current word starts with
+``-``.
+
+.. code-block:: bash
+
+    vvm_pull vpl<Tab>
+    # Completes to: vplanet/ vplot/ vplanet-private/ ...
+
+    vvm_push results.h5 Max<Tab>
+    # Completes to: MaxLEV/
+
+If completions are not working, ensure your shell configuration sources
+the completion file. The installer adds a line like this to your shell
+RC file:
+
+.. code-block:: bash
+
+    # Added by VVM installer
+    [ -f "/path/to/vvm/completions/vvm.bash" ] && . "/path/to/vvm/completions/vvm.bash"
+
+Open a new terminal or source the file manually for the change to take
+effect.
+
 Resource Allocation
 -------------------
 

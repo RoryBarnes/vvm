@@ -56,7 +56,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#display-forwarding">Display Forwarding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#claude-code-optional">Claude Code (Optional)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#container-utilities">Container Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#container-utilities">Container Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tab-completion">Tab Completion</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#resource-allocation">Resource Allocation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
@@ -357,6 +360,41 @@ directory and can be run inside the container:</p>
 <p>The script checks for host bind mounts, listening network ports, Docker
 socket access, and privileged mode. All checks should pass under normal
 <code class="docutils literal notranslate"><span class="pre">VVM</span></code> operation.</p>
+<section id="tab-completion">
+<h3>Tab Completion<a class="headerlink" href="#tab-completion" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">VVM</span></code> provides tab-completion for <code class="docutils literal notranslate"><span class="pre">vvm</span></code>, <code class="docutils literal notranslate"><span class="pre">vvm_push</span></code>, and <code class="docutils literal notranslate"><span class="pre">vvm_pull</span></code>
+in bash and zsh. The installer configures completion automatically.</p>
+<p><strong>vvm</strong> completes command-line flags (<code class="docutils literal notranslate"><span class="pre">--build</span></code>, <code class="docutils literal notranslate"><span class="pre">--status</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--destroy</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code>).</p>
+<p><strong>vvm_pull</strong> completes container paths for all positional arguments.
+Pressing <code class="docutils literal notranslate"><span class="pre">Tab</span></code> queries the running container’s <code class="docutils literal notranslate"><span class="pre">/workspace</span></code> directory
+and offers matching entries. Directories appear with a trailing <code class="docutils literal notranslate"><span class="pre">/</span></code> so
+you can continue typing into subdirectories. If the container is not
+running, completion silently falls back to local file paths.</p>
+<p><strong>vvm_push</strong> completes local file paths for source arguments (the default
+behavior) and switches to container path completion for the destination
+argument. Once at least one source path has been typed, subsequent
+arguments offer container path completion.</p>
+<p>Options (<code class="docutils literal notranslate"><span class="pre">-a</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span></code>, <code class="docutils literal notranslate"><span class="pre">-R</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code>) are completed for
+both <code class="docutils literal notranslate"><span class="pre">vvm_push</span></code> and <code class="docutils literal notranslate"><span class="pre">vvm_pull</span></code> when the current word starts with
+<code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vvm_pull<span class="w"> </span>vpl&lt;Tab&gt;
+<span class="c1"># Completes to: vplanet/ vplot/ vplanet-private/ ...</span>
+
+vvm_push<span class="w"> </span>results.h5<span class="w"> </span>Max&lt;Tab&gt;
+<span class="c1"># Completes to: MaxLEV/</span>
+</pre></div>
+</div>
+<p>If completions are not working, ensure your shell configuration sources
+the completion file. The installer adds a line like this to your shell
+RC file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Added by VVM installer</span>
+<span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;/path/to/vvm/completions/vvm.bash&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>.<span class="w"> </span><span class="s2">&quot;/path/to/vvm/completions/vvm.bash&quot;</span>
+</pre></div>
+</div>
+<p>Open a new terminal or source the file manually for the change to take
+effect.</p>
+</section>
 </section>
 <section id="resource-allocation">
 <h2>Resource Allocation<a class="headerlink" href="#resource-allocation" title="Link to this heading"></a></h2>
