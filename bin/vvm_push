@@ -1,0 +1,149 @@
+#!/bin/sh
+# vvm_push - Copy files from the host into the running VVM container.
+#
+# Container paths are relative to /workspace. A leading slash is stripped
+# before prepending /workspace, so "/vplanet" and "vplanet" both resolve
+# to /workspace/vplanet.
+#
+# Usage:
+#   vvm_push [options] <host_source>... <container_destination>
+#
+# Examples:
+#   vvm_push file.txt .                    Copy to /workspace/
+#   vvm_push *.in /MaxLEV/examples/        Copy matching files
+#   vvm_push -r results/ vplanet-private/  Copy dir into container
+
+set -e
+
+VVM_CONTAINER="vvm"
+VVM_WORKSPACE="/workspace"
+
+# ---------------------------------------------------------------------------
+fnPrintError() { echo "Error: $1" >&2; }
+
+# ---------------------------------------------------------------------------
+# fnPrintUsage: Display help text
+# ---------------------------------------------------------------------------
+fnPrintUsage() {
+    echo "Usage: vvm_push [options] <host_source>... <container_destination>"
+    echo ""
+    echo "Copy files from the host into the running VVM container."
+    echo "Container paths are relative to /workspace."
+    echo ""
+    echo "Options:"
+    echo "  -a          Archive mode (preserve uid/gid information)"
+    echo "  -L          Follow symbolic links in source"
+    echo "  -r, -R      Copy directories recursively (required for directories)"
+    echo "  --help      Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  vvm_push file.txt .                     Copy to /workspace/"
+    echo "  vvm_push *.in /MaxLEV/examples/         Copy matching files"
+    echo "  vvm_push -r results/ vplanet-private/   Copy dir into container"
+}
+
+# ---------------------------------------------------------------------------
+# fnCheckContainer: Verify the VVM container is running
+# ---------------------------------------------------------------------------
+fnCheckContainer() {
+    if ! command -v docker > /dev/null 2>&1; then
+        fnPrintError "docker not found on PATH."
+        exit 1
+    fi
+    if ! docker container inspect "${VVM_CONTAINER}" > /dev/null 2>&1; then
+        fnPrintError "VVM container is not running. Start it with: vvm"
+        exit 1
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fsResolveContainerPath: Map a user-facing path to a workspace-absolute path
+# Arguments: sRelativePath
+# Prints: the resolved absolute path inside the container
+# ---------------------------------------------------------------------------
+fsResolveContainerPath() {
+    case "$1" in
+        /*) echo "${VVM_WORKSPACE}$1" ;;
+        .)  echo "${VVM_WORKSPACE}" ;;
+        *)  echo "${VVM_WORKSPACE}/$1" ;;
+    esac
+}
+
+# ---------------------------------------------------------------------------
+# fbConfirmRecursive: Prompt the user before copying a directory
+# Arguments: sDisplayPath
+# Returns: 0 if confirmed, 1 otherwise
+# ---------------------------------------------------------------------------
+fbConfirmRecursive() {
+    printf "'%s' is a directory. Copy recursively? [y/N] " "$1"
+    read -r sAnswer
+    case "${sAnswer}" in
+        [Yy]) return 0 ;;
+        *)    return 1 ;;
+    esac
+}
+
+# ===========================================================================
+# Main
+# ===========================================================================
+
+sDockerFlags=""
+bRecursive=false
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --help|-h)
+            fnPrintUsage
+            exit 0
+            ;;
+        -a)
+            sDockerFlags="${sDockerFlags} -a"
+            ;;
+        -L)
+            sDockerFlags="${sDockerFlags} -L"
+            ;;
+        -aL|-La)
+            sDockerFlags="${sDockerFlags} -a -L"
+            ;;
+        -r|-R)
+            bRecursive=true
+            ;;
+        -*)
+            fnPrintError "Unknown option: $1"
+            fnPrintUsage >&2
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
+
+if [ $# -lt 2 ]; then
+    fnPrintError "Both source and destination are required."
+    fnPrintUsage >&2
+    exit 1
+fi
+
+fnCheckContainer
+
+# Last argument is the container destination
+for sContainerDest in "$@"; do :; done
+sResolvedDest=$(fsResolveContainerPath "${sContainerDest}")
+
+# Copy each source (all arguments except the last)
+while [ $# -gt 1 ]; do
+    sHostSource="$1"
+
+    if [ "${bRecursive}" = false ] && [ -d "${sHostSource}" ]; then
+        if ! fbConfirmRecursive "${sHostSource}"; then
+            shift
+            continue
+        fi
+    fi
+
+    # shellcheck disable=SC2086
+    docker cp ${sDockerFlags} "${sHostSource}" "${VVM_CONTAINER}:${sResolvedDest}"
+    shift
+done

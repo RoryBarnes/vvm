@@ -93,6 +93,122 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 }
 
 # ---------------------------------------------------------------------------
+# vvm_push and vvm_pull syntax
+# ---------------------------------------------------------------------------
+
+@test "bin/vvm_push has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/bin/vvm_push"
+
+    [ "$status" -eq 0 ]
+}
+
+@test "bin/vvm_pull has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/bin/vvm_pull"
+
+    [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# vvm_push argument parsing
+# ---------------------------------------------------------------------------
+
+@test "vvm_push --help exits 0" {
+    run sh "${REPO_ROOT}/bin/vvm_push" --help
+
+    [ "$status" -eq 0 ]
+}
+
+@test "vvm_push --help prints usage line" {
+    run sh "${REPO_ROOT}/bin/vvm_push" --help
+
+    [[ "$output" =~ "Usage: vvm_push" ]]
+}
+
+@test "vvm_push -h is equivalent to --help" {
+    run sh "${REPO_ROOT}/bin/vvm_push" -h
+
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "Usage: vvm_push" ]]
+}
+
+@test "vvm_push with no arguments exits 1" {
+    run sh "${REPO_ROOT}/bin/vvm_push"
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "source and destination are required" ]]
+}
+
+@test "vvm_push with one argument exits 1" {
+    run sh "${REPO_ROOT}/bin/vvm_push" file.txt
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "source and destination are required" ]]
+}
+
+@test "vvm_push rejects unknown flags" {
+    run sh "${REPO_ROOT}/bin/vvm_push" --bogus src dst
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "Unknown option" ]]
+}
+
+@test "vvm_push help documents multiple sources" {
+    run sh "${REPO_ROOT}/bin/vvm_push" --help
+
+    [[ "$output" =~ "<host_source>..." ]]
+}
+
+# ---------------------------------------------------------------------------
+# vvm_pull argument parsing
+# ---------------------------------------------------------------------------
+
+@test "vvm_pull --help exits 0" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" --help
+
+    [ "$status" -eq 0 ]
+}
+
+@test "vvm_pull --help prints usage line" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" --help
+
+    [[ "$output" =~ "Usage: vvm_pull" ]]
+}
+
+@test "vvm_pull -h is equivalent to --help" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" -h
+
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "Usage: vvm_pull" ]]
+}
+
+@test "vvm_pull with no arguments exits 1" {
+    run sh "${REPO_ROOT}/bin/vvm_pull"
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "source and destination are required" ]]
+}
+
+@test "vvm_pull with one argument exits 1" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" file.txt
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "source and destination are required" ]]
+}
+
+@test "vvm_pull rejects unknown flags" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" --bogus src dst
+
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "Unknown option" ]]
+}
+
+@test "vvm_pull help documents multiple sources" {
+    run sh "${REPO_ROOT}/bin/vvm_pull" --help
+
+    [[ "$output" =~ "<container_source>..." ]]
+}
+
+# ---------------------------------------------------------------------------
 # Dockerfile.claude
 # ---------------------------------------------------------------------------
 
