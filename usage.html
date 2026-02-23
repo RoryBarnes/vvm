@@ -54,6 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#git-workflow">Git Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#repos-conf">repos.conf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#display-forwarding">Display Forwarding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installed-packages">Installed Packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code">VS Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#claude-code-optional">Claude Code (Optional)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#container-utilities">Container Utilities</a><ul>
@@ -279,6 +280,136 @@ including the logout/login step.</p></li>
 </div>
 </li>
 </ol>
+<p><strong>Viewing standalone files:</strong></p>
+<p>The container includes lightweight X11 viewers for opening images and
+documents directly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>eog<span class="w"> </span>figure.png<span class="w">          </span><span class="c1"># GNOME image viewer (PNG, JPG, TIFF, etc.)</span>
+feh<span class="w"> </span>plot.png<span class="w">            </span><span class="c1"># Lightweight image viewer</span>
+evince<span class="w"> </span>paper.pdf<span class="w">        </span><span class="c1"># PDF and PostScript viewer</span>
+</pre></div>
+</div>
+<p>These viewers forward to the host display via X11, just like
+<code class="docutils literal notranslate"><span class="pre">plt.show()</span></code>. If you prefer to view files on the host instead, use
+<code class="docutils literal notranslate"><span class="pre">vvm_pull</span></code> to copy them out of the container first.</p>
+</section>
+<section id="installed-packages">
+<span id="id2"></span><h2>Installed Packages<a class="headerlink" href="#installed-packages" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">VVM</span></code> container image is built on Ubuntu 22.04 and includes the
+following pre-installed software.</p>
+<p><strong>System tools:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31.2%" />
+<col style="width: 68.8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">g++</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span></code></p></td>
+<td><p>C/C++ compilation toolchain</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">git</span></code></p></td>
+<td><p>Version control</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">valgrind</span></code>, <code class="docutils literal notranslate"><span class="pre">lcov</span></code></p></td>
+<td><p>Memory analysis and code coverage</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nano</span></code>, <code class="docutils literal notranslate"><span class="pre">vim</span></code></p></td>
+<td><p>Text editors</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">curl</span></code>, <code class="docutils literal notranslate"><span class="pre">gnupg</span></code></p></td>
+<td><p>Network and security utilities</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gosu</span></code>, <code class="docutils literal notranslate"><span class="pre">sudo</span></code></p></td>
+<td><p>Privilege management</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>X11 viewers (display via host):</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31.2%" />
+<col style="width: 68.8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eog</span></code></p></td>
+<td><p>GNOME image viewer (PNG, JPG, TIFF, BMP, SVG)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">evince</span></code></p></td>
+<td><p>PDF and PostScript viewer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">feh</span></code></p></td>
+<td><p>Lightweight command-line image viewer</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>LaTeX (for matplotlib TeX rendering):</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31.2%" />
+<col style="width: 68.8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">texlive-latex-base</span></code></p></td>
+<td><p>Core LaTeX distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">texlive-latex-extra</span></code></p></td>
+<td><p>Additional LaTeX packages</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">texlive-fonts-recommended</span></code></p></td>
+<td><p>Standard fonts</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cm-super</span></code>, <code class="docutils literal notranslate"><span class="pre">dvipng</span></code></p></td>
+<td><p>Computer Modern fonts and DVI-to-PNG conversion</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Python 3.11 packages:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 37.5%" />
+<col style="width: 62.5%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy</span></code></p></td>
+<td><p>Numerical computing</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">seaborn</span></code></p></td>
+<td><p>Plotting and visualization</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">astropy</span></code></p></td>
+<td><p>Astronomy utilities</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h5py</span></code>, <code class="docutils literal notranslate"><span class="pre">pandas</span></code></p></td>
+<td><p>Data storage and analysis</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">emcee</span></code>, <code class="docutils literal notranslate"><span class="pre">dynesty</span></code></p></td>
+<td><p>MCMC and nested sampling</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">george</span></code></p></td>
+<td><p>Gaussian process regression</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">corner</span></code></p></td>
+<td><p>Corner plots for posterior distributions</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>, <code class="docutils literal notranslate"><span class="pre">scikit-optimize</span></code></p></td>
+<td><p>Machine learning and optimization</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SALib</span></code></p></td>
+<td><p>Sensitivity analysis (Sobol indices)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pytest</span></code>, <code class="docutils literal notranslate"><span class="pre">pytest-cov</span></code></p></td>
+<td><p>Testing framework and coverage</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tqdm</span></code></p></td>
+<td><p>Progress bars</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setuptools</span></code>, <code class="docutils literal notranslate"><span class="pre">wheel</span></code>, <code class="docutils literal notranslate"><span class="pre">pybind11</span></code></p></td>
+<td><p>Build tools</p></td>
+</tr>
+</tbody>
+</table>
+<p>All Python packages are pre-installed in a single layer so that editable
+installs of the workspace repositories (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span> <span class="pre">--no-deps</span></code>)
+resolve instantly without downloading dependencies.</p>
 </section>
 <section id="vs-code">
 <h2>VS Code<a class="headerlink" href="#vs-code" title="Link to this heading"></a></h2>

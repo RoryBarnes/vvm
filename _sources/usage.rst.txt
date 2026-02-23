@@ -211,6 +211,111 @@ If ``plt.show()`` does not open a window, check the following:
       matplotlib.use("TkAgg")
       import matplotlib.pyplot as plt
 
+**Viewing standalone files:**
+
+The container includes lightweight X11 viewers for opening images and
+documents directly:
+
+.. code-block:: bash
+
+    eog figure.png          # GNOME image viewer (PNG, JPG, TIFF, etc.)
+    feh plot.png            # Lightweight image viewer
+    evince paper.pdf        # PDF and PostScript viewer
+
+These viewers forward to the host display via X11, just like
+``plt.show()``. If you prefer to view files on the host instead, use
+``vvm_pull`` to copy them out of the container first.
+
+.. _installed-packages:
+
+Installed Packages
+------------------
+
+The ``VVM`` container image is built on Ubuntu 22.04 and includes the
+following pre-installed software.
+
+**System tools:**
+
+.. list-table::
+   :widths: 25 55
+   :header-rows: 0
+
+   * - ``gcc``, ``g++``, ``make``
+     - C/C++ compilation toolchain
+   * - ``git``
+     - Version control
+   * - ``valgrind``, ``lcov``
+     - Memory analysis and code coverage
+   * - ``nano``, ``vim``
+     - Text editors
+   * - ``curl``, ``gnupg``
+     - Network and security utilities
+   * - ``gosu``, ``sudo``
+     - Privilege management
+
+**X11 viewers (display via host):**
+
+.. list-table::
+   :widths: 25 55
+   :header-rows: 0
+
+   * - ``eog``
+     - GNOME image viewer (PNG, JPG, TIFF, BMP, SVG)
+   * - ``evince``
+     - PDF and PostScript viewer
+   * - ``feh``
+     - Lightweight command-line image viewer
+
+**LaTeX (for matplotlib TeX rendering):**
+
+.. list-table::
+   :widths: 25 55
+   :header-rows: 0
+
+   * - ``texlive-latex-base``
+     - Core LaTeX distribution
+   * - ``texlive-latex-extra``
+     - Additional LaTeX packages
+   * - ``texlive-fonts-recommended``
+     - Standard fonts
+   * - ``cm-super``, ``dvipng``
+     - Computer Modern fonts and DVI-to-PNG conversion
+
+**Python 3.11 packages:**
+
+.. list-table::
+   :widths: 30 50
+   :header-rows: 0
+
+   * - ``numpy``, ``scipy``
+     - Numerical computing
+   * - ``matplotlib``, ``seaborn``
+     - Plotting and visualization
+   * - ``astropy``
+     - Astronomy utilities
+   * - ``h5py``, ``pandas``
+     - Data storage and analysis
+   * - ``emcee``, ``dynesty``
+     - MCMC and nested sampling
+   * - ``george``
+     - Gaussian process regression
+   * - ``corner``
+     - Corner plots for posterior distributions
+   * - ``scikit-learn``, ``scikit-optimize``
+     - Machine learning and optimization
+   * - ``SALib``
+     - Sensitivity analysis (Sobol indices)
+   * - ``pytest``, ``pytest-cov``
+     - Testing framework and coverage
+   * - ``tqdm``
+     - Progress bars
+   * - ``setuptools``, ``wheel``, ``pybind11``
+     - Build tools
+
+All Python packages are pre-installed in a single layer so that editable
+installs of the workspace repositories (``pip install -e . --no-deps``)
+resolve instantly without downloading dependencies.
+
 VS Code
 -------
 
