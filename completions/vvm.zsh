@@ -39,7 +39,7 @@ _fnListContainerPathsZsh() {
 _vvm() {
     local sCurrent="${words[CURRENT]}"
     if [[ "${sCurrent}" == -* ]]; then
-        compadd -- --help -h --status --build --destroy --shell
+        compadd -- --help -h --status --build --claude --destroy --shell
         return
     fi
 }

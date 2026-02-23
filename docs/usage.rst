@@ -11,6 +11,7 @@ Run ``VVM`` from the host with the following options:
     vvm                   # Start an interactive shell
     vvm <command>         # Run a command inside the container
     vvm --build           # Force rebuild the image, then start
+    vvm --claude          # Enable Claude Code and rebuild
     vvm --status          # Show image, volume, and container state
     vvm --destroy         # Remove the workspace volume
     vvm --help            # Show usage information
@@ -355,24 +356,38 @@ Claude Code (Optional)
 AI coding assistant that can be installed inside the container for
 interactive development sessions. It is not included in the default image.
 
-**Option 1: Install during setup**
+**Option 1: Enable after installation**
 
-Pass ``--claude`` when running the installer to include Claude Code in the
-Docker image:
+If ``VVM`` is already installed, enable Claude Code and rebuild the image
+in one step:
+
+.. code-block:: bash
+
+    vvm --claude
+
+This creates a ``.claude_enabled`` marker, rebuilds the base image, and
+layers the ``Dockerfile.claude`` overlay on top (adding Node.js and Claude
+Code). On subsequent runs, ``vvm`` and ``vvm --build`` will include the
+Claude overlay automatically.
+
+**Option 2: Enable during initial setup**
+
+Pass ``--claude`` when running the installer:
 
 .. code-block:: bash
 
     sh installVvm.sh --claude
 
-This creates a ``Dockerfile.claude`` overlay that layers Node.js and Claude
-Code on top of the base image. The overlay is built automatically whenever
-``VVM`` rebuilds the image.
+The Claude Code overlay will be built automatically on the first ``vvm``
+run.
 
-**Option 2: Install manually inside the container**
+**Option 3: Install manually inside the container**
 
-If you installed ``VVM`` without ``--claude``, you can install Claude Code
-at any time. The container runs as the ``vplanet`` user (not root), so
-switch to root temporarily with ``sudo``:
+If you prefer not to bake Claude Code into the image, you can install it
+at any time inside a running container. Note that manual installs do not
+persist across container restarts (use ``vvm --claude`` instead for a
+permanent solution). The container runs as the ``vplanet`` user, so use
+``sudo``:
 
 .. code-block:: bash
 

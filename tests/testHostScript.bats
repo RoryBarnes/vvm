@@ -24,6 +24,7 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
     run bash "${VVM_SCRIPT}" --help
 
     [[ "$output" =~ "--build" ]]
+    [[ "$output" =~ "--claude" ]]
     [[ "$output" =~ "--status" ]]
     [[ "$output" =~ "--destroy" ]]
     [[ "$output" =~ "--shell" ]]

@@ -335,6 +335,7 @@ fnPrintUsage() {
     echo ""
     echo "Options:"
     echo "  --build     Force rebuild the container image"
+    echo "  --claude    Enable Claude Code in the image and rebuild"
     echo "  --shell     Start an interactive shell (default)"
     echo "  --status    Show container and volume status"
     echo "  --destroy   Remove the workspace volume"
@@ -343,6 +344,7 @@ fnPrintUsage() {
     echo "Examples:"
     echo "  vvm                 Start interactive session"
     echo "  vvm --build         Force rebuild then start"
+    echo "  vvm --claude        Enable Claude Code and rebuild"
     echo "  vvm pytest          Run pytest inside the container"
     echo "  vvm --status        Check if container and volume exist"
 }
@@ -365,6 +367,17 @@ case "${1:-}" in
         fnCheckDocker
         fnDestroyVolume
         exit 0
+        ;;
+    --claude)
+        shift
+        fnCheckDocker
+        touch "${VVM_DIR}/.claude_enabled"
+        echo "[vvm] Claude Code enabled."
+        echo "[vvm] Rebuilding image with Claude Code overlay..."
+        "${sDocker}" build -t "${VVM_IMAGE}" "${VVM_DIR}"
+        fnBuildClaudeOverlay
+        fnCreateVolume
+        fnStartContainer "$@"
         ;;
     --build)
         shift

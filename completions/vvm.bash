@@ -27,7 +27,7 @@ _fnListContainerPaths() {
 _fnCompleteVvm() {
     local sCurrent="${COMP_WORDS[COMP_CWORD]}"
     if [[ "${sCurrent}" == -* ]]; then
-        COMPREPLY=($(compgen -W "--help -h --status --build --destroy --shell" -- "${sCurrent}"))
+        COMPREPLY=($(compgen -W "--help -h --status --build --claude --destroy --shell" -- "${sCurrent}"))
     fi
 }
 complete -F _fnCompleteVvm vvm
