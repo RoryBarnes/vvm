@@ -1,5 +1,5 @@
 #!/bin/sh
-# install_vvm.sh - Install VVM and its host dependencies.
+# installVvm.sh - Install VVM and its host dependencies.
 #
 # Detects the operating system and package manager, installs Docker and
 # the GitHub CLI, clones the VVM repository, creates a symlink so that
@@ -7,13 +7,13 @@
 # user's shell configuration.
 #
 # Usage:
-#   sh install_vvm.sh [-y|--yes] [--claude]
+#   sh installVvm.sh [-y|--yes] [--claude]
 
 set -e
 
 VVM_REPO="https://github.com/RoryBarnes/vvm.git"
-INSTALL_CLAUDE=false
-ASSUME_YES=false
+bInstallClaude=false
+bAssumeYes=false
 
 # ---------------------------------------------------------------------------
 fnPrintError() { echo "ERROR: $1" >&2; }
@@ -25,14 +25,14 @@ fnParseArguments() {
     while [ $# -gt 0 ]; do
         case "$1" in
             -y|--yes)
-                ASSUME_YES=true
+                bAssumeYes=true
                 ;;
             --claude)
-                INSTALL_CLAUDE=true
+                bInstallClaude=true
                 ;;
             *)
                 fnPrintError "Unknown option: $1"
-                echo "Usage: sh install_vvm.sh [-y|--yes] [--claude]" >&2
+                echo "Usage: sh installVvm.sh [-y|--yes] [--claude]" >&2
                 exit 1
                 ;;
         esac
@@ -41,24 +41,24 @@ fnParseArguments() {
 }
 
 # ---------------------------------------------------------------------------
-# fnDetectPlatform: Set PLATFORM to "Darwin" or "Linux"
+# fnDetectPlatform: Set sPlatform to "Darwin" or "Linux"
 # ---------------------------------------------------------------------------
 fnDetectPlatform() {
-    PLATFORM="$(uname -s)"
-    if [ "${PLATFORM}" != "Darwin" ] && [ "${PLATFORM}" != "Linux" ]; then
-        fnPrintError "Unsupported platform: ${PLATFORM}"
+    sPlatform="$(uname -s)"
+    if [ "${sPlatform}" != "Darwin" ] && [ "${sPlatform}" != "Linux" ]; then
+        fnPrintError "Unsupported platform: ${sPlatform}"
         exit 1
     fi
 }
 
 # ---------------------------------------------------------------------------
-# fnDetectMacPackageManager: Set MAC_PKG to "port", "brew", or exit
+# fnDetectMacPackageManager: Set sMacPackageManager to "port", "brew", or exit
 # ---------------------------------------------------------------------------
 fnDetectMacPackageManager() {
     if command -v port > /dev/null 2>&1; then
-        MAC_PKG="port"
+        sMacPackageManager="port"
     elif command -v brew > /dev/null 2>&1; then
-        MAC_PKG="brew"
+        sMacPackageManager="brew"
     else
         fnPrintError "Neither MacPorts nor Homebrew found."
         echo "Install one of:" >&2
@@ -73,7 +73,7 @@ fnDetectMacPackageManager() {
 # ---------------------------------------------------------------------------
 fnInstallMacPorts() {
     echo "[install] Installing docker, colima, gh, XQuartz, and xhost via MacPorts..."
-    if [ "${ASSUME_YES}" = true ]; then
+    if [ "${bAssumeYes}" = true ]; then
         sudo port -N install docker colima gh xorg-server xhost
     else
         sudo port install docker colima gh xorg-server xhost
@@ -85,7 +85,7 @@ fnInstallMacPorts() {
 # ---------------------------------------------------------------------------
 fnInstallHomebrew() {
     echo "[install] Installing docker, colima, gh, and XQuartz via Homebrew..."
-    if [ "${ASSUME_YES}" = true ]; then
+    if [ "${bAssumeYes}" = true ]; then
         NONINTERACTIVE=1 brew install docker colima gh
         NONINTERACTIVE=1 brew install --cask xquartz
     else
@@ -95,27 +95,29 @@ fnInstallHomebrew() {
 }
 
 # ---------------------------------------------------------------------------
-# fnInstallDebian: Install Docker Engine and gh on Debian/Ubuntu
+# fnInstallDebianDocker: Add Docker APT repository and install engine
 # ---------------------------------------------------------------------------
-fnInstallDebian() {
+fnInstallDebianDocker() {
     echo "[install] Installing Docker Engine on Debian/Ubuntu..."
     sudo apt-get update
     sudo apt-get install -y ca-certificates curl gnupg
-
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
         | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
     echo \
       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
       https://download.docker.com/linux/ubuntu \
       $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" \
       | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
     sudo apt-get update
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+}
 
+# ---------------------------------------------------------------------------
+# fnInstallDebianGitHub: Add GitHub CLI APT repository and install gh
+# ---------------------------------------------------------------------------
+fnInstallDebianGitHub() {
     echo "[install] Installing GitHub CLI..."
     sudo mkdir -p -m 755 /etc/apt/keyrings
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
@@ -126,7 +128,14 @@ fnInstallDebian() {
         | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
     sudo apt-get update
     sudo apt-get install -y gh
+}
 
+# ---------------------------------------------------------------------------
+# fnInstallDebian: Install Docker Engine and gh on Debian/Ubuntu
+# ---------------------------------------------------------------------------
+fnInstallDebian() {
+    fnInstallDebianDocker
+    fnInstallDebianGitHub
     sudo systemctl enable --now docker
     sudo usermod -aG docker "${USER}"
     echo "[install] Log out and back in for Docker group to take effect."
@@ -157,7 +166,7 @@ fnInstallFedora() {
 # fnCloneAndLink: Clone VVM and create the symlink
 # ---------------------------------------------------------------------------
 fnCloneAndLink() {
-    sBinDir="$1"
+    local sBinDir="$1"
 
     if [ -x "./vvm" ] && [ -f "./Dockerfile" ]; then
         echo "[install] Already inside the VVM repository."
@@ -178,57 +187,73 @@ fnCloneAndLink() {
 }
 
 # ---------------------------------------------------------------------------
+# fsDetectShellRcFile: Return the RC file path for the given shell
+# Arguments: sShellName
+# ---------------------------------------------------------------------------
+fsDetectShellRcFile() {
+    local sShellName="$1"
+    case "${sShellName}" in
+        zsh)  echo "${HOME}/.zshrc" ;;
+        bash)
+            if [ "$(uname -s)" = "Darwin" ]; then
+                echo "${HOME}/.bash_profile"
+            else
+                echo "${HOME}/.bashrc"
+            fi
+            ;;
+        fish) echo "${HOME}/.config/fish/config.fish" ;;
+        *)    echo "${HOME}/.profile" ;;
+    esac
+}
+
+# ---------------------------------------------------------------------------
+# fsFormatExportLine: Return the PATH export statement for the given shell
+# Arguments: sShellName sBinDirectory
+# ---------------------------------------------------------------------------
+fsFormatExportLine() {
+    local sShellName="$1"
+    local sBinDirectory="$2"
+    if [ "${sShellName}" = "fish" ]; then
+        echo "set -gx PATH ${sBinDirectory} \$PATH"
+    else
+        echo "export PATH=\"${sBinDirectory}:\$PATH\""
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fnAppendToShellConfig: Append a tagged line to an RC file
+# Arguments: sRcFile sLine
+# ---------------------------------------------------------------------------
+fnAppendToShellConfig() {
+    local sRcFile="$1"
+    local sLine="$2"
+    {
+        echo ""
+        echo "# Added by VVM installer"
+        echo "${sLine}"
+    } >> "${sRcFile}"
+}
+
+# ---------------------------------------------------------------------------
 # fnConfigureShellPath: Add the VVM bin directory to the user's shell PATH
 # Arguments: sBinDirectory
 # ---------------------------------------------------------------------------
 fnConfigureShellPath() {
-    sBinDirectory="$1"
-    sRcFile=""
-
+    local sBinDirectory="$1"
+    local sShellName
     sShellName="$(basename "${SHELL:-/bin/sh}")"
-
-    case "${sShellName}" in
-        zsh)
-            sRcFile="${HOME}/.zshrc"
-            ;;
-        bash)
-            if [ "$(uname -s)" = "Darwin" ]; then
-                sRcFile="${HOME}/.bash_profile"
-            else
-                sRcFile="${HOME}/.bashrc"
-            fi
-            ;;
-        fish)
-            sRcFile="${HOME}/.config/fish/config.fish"
-            ;;
-        *)
-            sRcFile="${HOME}/.profile"
-            ;;
-    esac
-
+    local sRcFile
+    sRcFile=$(fsDetectShellRcFile "${sShellName}")
     if [ -z "${sRcFile}" ]; then
-        echo "[install] Could not determine shell config file. Skipping PATH setup."
-        echo "[install] Add this to your shell config manually:"
+        echo "[install] Could not determine shell config. Add manually:"
         echo "  export PATH=\"${sBinDirectory}:\$PATH\""
         return
     fi
-
-    if [ "${sShellName}" = "fish" ]; then
-        sExportLine="set -gx PATH ${sBinDirectory} \$PATH"
-    else
-        sExportLine="export PATH=\"${sBinDirectory}:\$PATH\""
-    fi
-
     if [ -f "${sRcFile}" ] && grep -qF "${sBinDirectory}" "${sRcFile}" 2>/dev/null; then
         echo "[install] PATH already configured in ${sRcFile}."
         return
     fi
-
-    {
-        echo ""
-        echo "# Added by VVM installer"
-        echo "${sExportLine}"
-    } >> "${sRcFile}"
+    fnAppendToShellConfig "${sRcFile}" "$(fsFormatExportLine "${sShellName}" "${sBinDirectory}")"
     echo "[install] Added ${sBinDirectory} to PATH in ${sRcFile}."
     echo "[install] Open a new terminal or run: . ${sRcFile}"
 }
@@ -238,39 +263,22 @@ fnConfigureShellPath() {
 # Arguments: sVvmDirectory
 # ---------------------------------------------------------------------------
 fnConfigureCompletions() {
-    sVvmDirectory="$1"
+    local sVvmDirectory="$1"
+    local sShellName
     sShellName="$(basename "${SHELL:-/bin/sh}")"
-
+    local sCompletionFile=""
     case "${sShellName}" in
-        bash)
-            sCompletionFile="${sVvmDirectory}/completions/vvm.bash"
-            if [ "$(uname -s)" = "Darwin" ]; then
-                sRcFile="${HOME}/.bash_profile"
-            else
-                sRcFile="${HOME}/.bashrc"
-            fi
-            ;;
-        zsh)
-            sCompletionFile="${sVvmDirectory}/completions/vvm.zsh"
-            sRcFile="${HOME}/.zshrc"
-            ;;
-        *)
-            return
-            ;;
+        bash) sCompletionFile="${sVvmDirectory}/completions/vvm.bash" ;;
+        zsh)  sCompletionFile="${sVvmDirectory}/completions/vvm.zsh" ;;
+        *)    return ;;
     esac
-
-    sSourceLine="[ -f \"${sCompletionFile}\" ] && . \"${sCompletionFile}\""
-
+    local sRcFile
+    sRcFile=$(fsDetectShellRcFile "${sShellName}")
     if [ -f "${sRcFile}" ] && grep -qF "/vvm/completions/" "${sRcFile}" 2>/dev/null; then
         echo "[install] Completions already configured in ${sRcFile}."
         return
     fi
-
-    {
-        echo ""
-        echo "# Added by VVM installer"
-        echo "${sSourceLine}"
-    } >> "${sRcFile}"
+    fnAppendToShellConfig "${sRcFile}" "[ -f \"${sCompletionFile}\" ] && . \"${sCompletionFile}\""
     echo "[install] Added tab-completion to ${sRcFile}."
 }
 
@@ -278,7 +286,7 @@ fnConfigureCompletions() {
 # fnEnableClaude: Mark VVM to include Claude Code in the Docker image
 # ---------------------------------------------------------------------------
 fnEnableClaude() {
-    sVvmDirectory="$1"
+    local sVvmDirectory="$1"
 
     touch "${sVvmDirectory}/.claude_enabled"
     echo "[install] Claude Code will be included in the Docker image."
@@ -290,12 +298,12 @@ fnEnableClaude() {
 # ===========================================================================
 fnParseArguments "$@"
 fnDetectPlatform
-echo "[install] Detected platform: ${PLATFORM}"
+echo "[install] Detected platform: ${sPlatform}"
 
-if [ "${PLATFORM}" = "Darwin" ]; then
+if [ "${sPlatform}" = "Darwin" ]; then
     fnDetectMacPackageManager
-    echo "[install] Using package manager: ${MAC_PKG}"
-    if [ "${MAC_PKG}" = "port" ]; then
+    echo "[install] Using package manager: ${sMacPackageManager}"
+    if [ "${sMacPackageManager}" = "port" ]; then
         fnInstallMacPorts
         fnCloneAndLink "/opt/local/bin"
     else
@@ -305,10 +313,10 @@ if [ "${PLATFORM}" = "Darwin" ]; then
     echo ""
     echo "[install] Installation complete."
     echo "[install] Start Colima before first use:"
-    CORES=$(sysctl -n hw.ncpu)
-    echo "  colima start --cpu $(( CORES - 1 )) --memory 8"
+    iCores=$(sysctl -n hw.ncpu)
+    echo "  colima start --cpu $(( iCores - 1 )) --memory 8"
 
-elif [ "${PLATFORM}" = "Linux" ]; then
+elif [ "${sPlatform}" = "Linux" ]; then
     if command -v apt-get > /dev/null 2>&1; then
         fnInstallDebian
         fnCloneAndLink "/usr/local/bin"
@@ -324,11 +332,11 @@ elif [ "${PLATFORM}" = "Linux" ]; then
     echo "[install] Installation complete."
 fi
 
-if [ "${INSTALL_CLAUDE}" = true ]; then
+if [ "${bInstallClaude}" = true ]; then
     fnEnableClaude "$(pwd)"
 fi
 
-if [ "${PLATFORM}" = "Darwin" ]; then
+if [ "${sPlatform}" = "Darwin" ]; then
     echo "[install] After starting Colima, run 'vvm' to launch the Virtual VPLanet Machine."
 else
     echo "[install] After logging out and back in, run 'vvm' to launch the Virtual VPLanet Machine."

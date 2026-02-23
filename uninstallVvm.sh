@@ -1,13 +1,13 @@
 #!/bin/sh
-# uninstall_vvm.sh - Remove VVM and its Docker resources.
+# uninstallVvm.sh - Remove VVM and its Docker resources.
 #
 # Removes the Docker image, volume, and container created by VVM,
-# the symlink and PATH entries created by install_vvm.sh, and the
+# the symlink and PATH entries created by installVvm.sh, and the
 # .claude_enabled marker if present. Does not uninstall Docker,
 # Colima, or the GitHub CLI.
 #
 # Usage:
-#   sh uninstall_vvm.sh
+#   sh uninstallVvm.sh
 
 set -e
 
@@ -20,8 +20,9 @@ fnPrintError() { echo "ERROR: $1" >&2; }
 # Returns: 0 if confirmed, 1 otherwise
 # ---------------------------------------------------------------------------
 fbConfirmAction() {
-    sPrompt="$1"
+    local sPrompt="$1"
     printf "%s [y/N] " "${sPrompt}"
+    local sAnswer
     read -r sAnswer
     case "${sAnswer}" in
         [Yy]) return 0 ;;
@@ -91,7 +92,7 @@ fnRemoveSymlink() {
     done
 
     if command -v brew > /dev/null 2>&1; then
-        sBrewLink="$(brew --prefix)/bin/vvm"
+        local sBrewLink="$(brew --prefix)/bin/vvm"
         if [ -L "${sBrewLink}" ]; then
             echo "[uninstall] Removing symlink ${sBrewLink}..."
             sudo rm -f "${sBrewLink}"
@@ -100,6 +101,23 @@ fnRemoveSymlink() {
     fi
 
     echo "[uninstall] No vvm symlink found."
+}
+
+# ---------------------------------------------------------------------------
+# fnRemoveVvmLinesFromFile: Strip VVM-added lines from a single RC file
+# Arguments: sFile
+# ---------------------------------------------------------------------------
+fnRemoveVvmLinesFromFile() {
+    local sFile="$1"
+    if ! grep -q "Added by VVM installer" "${sFile}" 2>/dev/null; then
+        return
+    fi
+    local sTempFile="${sFile}.vvm_uninstall_tmp"
+    { grep -v "Added by VVM installer" "${sFile}" \
+        | grep -v "/vvm/bin" \
+        | grep -v "/vvm/completions/"; } > "${sTempFile}" || true
+    mv "${sTempFile}" "${sFile}"
+    echo "[uninstall] Removed VVM PATH entry from ${sFile}."
 }
 
 # ---------------------------------------------------------------------------
@@ -113,18 +131,9 @@ fnRemovePathEntry() {
         "${HOME}/.profile" \
         "${HOME}/.config/fish/config.fish"
     do
-        if [ ! -f "${sFile}" ]; then
-            continue
+        if [ -f "${sFile}" ]; then
+            fnRemoveVvmLinesFromFile "${sFile}"
         fi
-        if ! grep -q "Added by VVM installer" "${sFile}" 2>/dev/null; then
-            continue
-        fi
-        sTempFile="${sFile}.vvm_uninstall_tmp"
-        { grep -v "Added by VVM installer" "${sFile}" \
-            | grep -v "/vvm/bin" \
-            | grep -v "/vvm/completions/"; } > "${sTempFile}" || true
-        mv "${sTempFile}" "${sFile}"
-        echo "[uninstall] Removed VVM PATH entry from ${sFile}."
     done
 }
 
@@ -132,7 +141,7 @@ fnRemovePathEntry() {
 # fnRemoveClaudeMarker: Remove the .claude_enabled marker file
 # ---------------------------------------------------------------------------
 fnRemoveClaudeMarker() {
-    sMarkerDir="$1"
+    local sMarkerDir="$1"
     if [ -f "${sMarkerDir}/.claude_enabled" ]; then
         rm -f "${sMarkerDir}/.claude_enabled"
         echo "[uninstall] Removed Claude Code marker."

@@ -52,8 +52,8 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
     [ "$status" -eq 0 ]
 }
 
-@test "check_isolation.sh has valid bash syntax" {
-    run bash -n "${REPO_ROOT}/check_isolation.sh"
+@test "checkIsolation.sh has valid bash syntax" {
+    run bash -n "${REPO_ROOT}/checkIsolation.sh"
 
     [ "$status" -eq 0 ]
 }
@@ -64,30 +64,30 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
     [ "$status" -eq 0 ]
 }
 
-@test "install_vvm.sh has valid shell syntax" {
-    run sh -n "${REPO_ROOT}/install_vvm.sh"
+@test "installVvm.sh has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/installVvm.sh"
 
     [ "$status" -eq 0 ]
 }
 
-@test "uninstall_vvm.sh has valid shell syntax" {
-    run sh -n "${REPO_ROOT}/uninstall_vvm.sh"
+@test "uninstallVvm.sh has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/uninstallVvm.sh"
 
     [ "$status" -eq 0 ]
 }
 
 # ---------------------------------------------------------------------------
-# install_vvm.sh argument parsing
+# installVvm.sh argument parsing
 # ---------------------------------------------------------------------------
 
-@test "install_vvm.sh rejects unknown flags" {
-    run sh "${REPO_ROOT}/install_vvm.sh" --bogus
+@test "installVvm.sh rejects unknown flags" {
+    run sh "${REPO_ROOT}/installVvm.sh" --bogus
 
     [ "$status" -eq 1 ]
 }
 
-@test "install_vvm.sh usage mentions -y flag" {
-    run sh "${REPO_ROOT}/install_vvm.sh" --bogus
+@test "installVvm.sh usage mentions -y flag" {
+    run sh "${REPO_ROOT}/installVvm.sh" --bogus
 
     [[ "$output" =~ "-y" ]]
 }
@@ -95,6 +95,12 @@ VVM_SCRIPT="${REPO_ROOT}/vvm"
 # ---------------------------------------------------------------------------
 # vvm_push and vvm_pull syntax
 # ---------------------------------------------------------------------------
+
+@test "bin/vvmTransferCommon.sh has valid shell syntax" {
+    run sh -n "${REPO_ROOT}/bin/vvmTransferCommon.sh"
+
+    [ "$status" -eq 0 ]
+}
 
 @test "bin/vvm_push has valid shell syntax" {
     run sh -n "${REPO_ROOT}/bin/vvm_push"

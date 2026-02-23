@@ -257,7 +257,7 @@ Docker image:
 
 .. code-block:: bash
 
-    sh install_vvm.sh --claude
+    sh installVvm.sh --claude
 
 This creates a ``Dockerfile.claude`` overlay that layers Node.js and Claude
 Code on top of the base image. The overlay is built automatically whenever
@@ -300,13 +300,13 @@ your first session is still active:
 The ``connect_vvm`` command is available on the host after running the
 installer. It is equivalent to ``docker exec -it -u vplanet vvm bash``.
 
-**check_isolation.sh** verifies that the container's filesystem is
+**checkIsolation.sh** verifies that the container's filesystem is
 isolated from the host. It is located in the ``vplanet`` user's home
 directory and can be run inside the container:
 
 .. code-block:: bash
 
-    ~/check_isolation.sh
+    ~/checkIsolation.sh
 
 The script checks for host bind mounts, listening network ports, Docker
 socket access, and privileged mode. All checks should pass under normal

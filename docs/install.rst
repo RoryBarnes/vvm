@@ -16,7 +16,7 @@ authentication is needed for the default installation.
 Automated Install
 -----------------
 
-The ``install_vvm.sh`` script detects your operating system and package
+The ``installVvm.sh`` script detects your operating system and package
 manager, installs all dependencies, clones ``VVM``, creates a symlink
 so that ``vvm`` is available from any terminal, and adds the ``VVM``
 utilities directory to your shell's ``PATH``.
@@ -25,21 +25,21 @@ utilities directory to your shell's ``PATH``.
 
     git clone https://github.com/RoryBarnes/vvm.git
     cd vvm
-    sh install_vvm.sh
+    sh installVvm.sh
 
 To accept all prompts automatically (no confirmation required), pass
 ``-y`` or ``--yes``:
 
 .. code-block:: bash
 
-    sh install_vvm.sh -y
+    sh installVvm.sh -y
 
 To include `Claude Code <https://docs.anthropic.com/en/docs/claude-code>`_
 in the Docker image, pass the ``--claude`` flag (flags may be combined):
 
 .. code-block:: bash
 
-    sh install_vvm.sh --yes --claude
+    sh installVvm.sh --yes --claude
 
 The installer adds the ``vvm/bin`` directory to your shell configuration
 (``~/.zshrc``, ``~/.bashrc``, ``~/.bash_profile``, ``~/.config/fish/config.fish``,
@@ -200,7 +200,7 @@ A verification script is also available inside the container:
 
 .. code-block:: bash
 
-    sh /workspace/verify_vvm.sh
+    sh /workspace/verifyVvm.sh
 
 Uninstalling
 ------------
@@ -210,7 +210,7 @@ from the ``VVM`` repository directory:
 
 .. code-block:: bash
 
-    sh uninstall_vvm.sh
+    sh uninstallVvm.sh
 
 The script removes:
 

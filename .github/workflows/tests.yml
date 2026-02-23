@@ -14,12 +14,13 @@ jobs:
         run: |
           shellcheck -s bash entrypoint.sh
           shellcheck -s bash vvm
-          shellcheck -s bash check_isolation.sh
-          shellcheck -x -s sh install_vvm.sh
-          shellcheck -s sh uninstall_vvm.sh
+          shellcheck -s bash checkIsolation.sh
+          shellcheck -x -s sh installVvm.sh
+          shellcheck -s sh uninstallVvm.sh
           shellcheck -s sh bin/connect_vvm
-          shellcheck -s sh bin/vvm_push
-          shellcheck -s sh bin/vvm_pull
+          shellcheck -s sh bin/vvmTransferCommon.sh
+          shellcheck -x -s sh bin/vvm_push
+          shellcheck -x -s sh bin/vvm_pull
           shellcheck -s bash completions/vvm.bash
 
       - name: hadolint
@@ -54,16 +55,16 @@ jobs:
         run: brew install bats-core
 
       - name: repos.conf validation
-        run: pytest tests/test_repos_conf.py -v
+        run: pytest tests/testReposConf.py -v
 
       - name: Entrypoint unit tests
-        run: bats tests/test_entrypoint.bats
+        run: bats tests/testEntrypoint.bats
 
       - name: Host script tests
-        run: bats tests/test_host_script.bats
+        run: bats tests/testHostScript.bats
 
       - name: Uninstall script tests
-        run: bats tests/test_uninstall.bats
+        run: bats tests/testUninstall.bats
 
   docker:
     runs-on: ubuntu-latest
@@ -78,5 +79,5 @@ jobs:
         run: python -m pip install pytest
 
       - name: Docker smoke tests
-        run: pytest tests/test_docker_build.py -v -m docker
+        run: pytest tests/testDockerBuild.py -v -m docker
         timeout-minutes: 15

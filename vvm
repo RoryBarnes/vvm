@@ -29,27 +29,27 @@ readonly VVM_VOLUME="vvm-workspace"
 
 # Detect platform and set appropriate values
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    TOTAL_CORES=$(sysctl -n hw.ncpu)
+    iTotalCores=$(sysctl -n hw.ncpu)
 else
-    TOTAL_CORES=$(nproc)
+    iTotalCores=$(nproc)
 fi
-readonly TOTAL_CORES
-CONTAINER_CORES=$(( TOTAL_CORES - 1 ))
-readonly CONTAINER_CORES
+readonly iTotalCores
+iContainerCores=$(( iTotalCores - 1 ))
+readonly iContainerCores
 
 # Temp files to clean up on exit
-CLEANUP_FILES=()
+saCleanupFiles=()
 
 fnCleanup() {
-    if [ "${#CLEANUP_FILES[@]}" -gt 0 ]; then
-        for sFile in "${CLEANUP_FILES[@]}"; do
+    if [ "${#saCleanupFiles[@]}" -gt 0 ]; then
+        for sFile in "${saCleanupFiles[@]}"; do
             rm -f "${sFile}" 2>/dev/null
         done
     fi
 }
 trap fnCleanup EXIT
 
-DOCKER=""
+sDocker=""
 
 # ---------------------------------------------------------------------------
 # fnDisableX11Auth: Allow Docker containers to connect to the X11 display
@@ -69,6 +69,24 @@ fnDisableX11Auth() {
 }
 
 # ---------------------------------------------------------------------------
+# fnPrintDockerError: Display a helpful error for Docker connectivity issues
+# ---------------------------------------------------------------------------
+fnPrintDockerError() {
+    local sError="$1"
+
+    if [[ "${sError}" == *"permission denied"* ]]; then
+        echo "Error: Permission denied when connecting to Docker."
+        echo "  Fix: sudo usermod -aG docker \$USER && newgrp docker"
+    elif [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "Error: Docker daemon is not running."
+        echo "  Fix: colima start --cpu ${iContainerCores} --memory 8"
+    else
+        echo "Error: Docker daemon is not running."
+        echo "  Fix: sudo systemctl start docker"
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # fnCheckDocker: Find the Docker binary and verify the daemon is reachable
 # ---------------------------------------------------------------------------
 fnCheckDocker() {
@@ -76,68 +94,65 @@ fnCheckDocker() {
         echo "Error: docker not found on PATH."
         exit 1
     fi
-    DOCKER="$(command -v docker)"
+    sDocker="$(command -v docker)"
 
     local sError
-    if sError=$("${DOCKER}" info 2>&1); then
+    if sError=$("${sDocker}" info 2>&1); then
         return 0
     fi
 
-    if [[ "${sError}" == *"permission denied"* ]]; then
-        echo "Error: Permission denied when connecting to Docker."
-        echo "  Fix: sudo usermod -aG docker \$USER && newgrp docker"
-    elif [[ "$(uname -s)" == "Darwin" ]]; then
-        echo "Error: Docker daemon is not running."
-        echo "  Fix: colima start --cpu ${CONTAINER_CORES} --memory 8"
-    else
-        echo "Error: Docker daemon is not running."
-        echo "  Fix: sudo systemctl start docker"
-    fi
+    fnPrintDockerError "${sError}"
     exit 1
+}
+
+# ---------------------------------------------------------------------------
+# fiGetFileEpoch: Return the modification time of a file as epoch seconds
+# ---------------------------------------------------------------------------
+fiGetFileEpoch() {
+    local sFile="$1"
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        stat -f "%m" "${sFile}"
+    else
+        stat -c "%Y" "${sFile}"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# fbImageIsStale: Return true if source files are newer than the image
+# ---------------------------------------------------------------------------
+fbImageIsStale() {
+    if ! "${sDocker}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
+        return 0
+    fi
+
+    local sImageCreated
+    sImageCreated=$("${sDocker}" image inspect "${VVM_IMAGE}" \
+        --format '{{.Created}}' 2>/dev/null)
+
+    local iImageEpoch
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        iImageEpoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" \
+            "${sImageCreated%%.*}" "+%s" 2>/dev/null || echo "0")
+    else
+        iImageEpoch=$(date -d "${sImageCreated}" "+%s" 2>/dev/null || echo "0")
+    fi
+
+    for sFile in "${VVM_DIR}/Dockerfile" "${VVM_DIR}/entrypoint.sh" "${VVM_DIR}/repos.conf"; do
+        if [ -f "${sFile}" ] && [ "$(fiGetFileEpoch "${sFile}")" -gt "${iImageEpoch}" ]; then
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 # ---------------------------------------------------------------------------
 # fnBuildImage: Build the Docker image if source files have changed
 # ---------------------------------------------------------------------------
 fnBuildImage() {
-    local bNeedsBuild=false
-
-    if ! "${DOCKER}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
-        bNeedsBuild=true
-    fi
-
-    if [ "${bNeedsBuild}" = false ]; then
-        local sImageCreated
-        sImageCreated=$("${DOCKER}" image inspect "${VVM_IMAGE}" \
-            --format '{{.Created}}' 2>/dev/null)
-
-        local iImageEpoch
-        if [[ "$(uname -s)" == "Darwin" ]]; then
-            iImageEpoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" \
-                "${sImageCreated%%.*}" "+%s" 2>/dev/null || echo "0")
-        else
-            iImageEpoch=$(date -d "${sImageCreated}" "+%s" 2>/dev/null || echo "0")
-        fi
-
-        for sFile in "${VVM_DIR}/Dockerfile" "${VVM_DIR}/entrypoint.sh" "${VVM_DIR}/repos.conf"; do
-            if [ -f "${sFile}" ]; then
-                local iFileEpoch
-                if [[ "$(uname -s)" == "Darwin" ]]; then
-                    iFileEpoch=$(stat -f "%m" "${sFile}")
-                else
-                    iFileEpoch=$(stat -c "%Y" "${sFile}")
-                fi
-                if [ "${iFileEpoch}" -gt "${iImageEpoch}" ]; then
-                    bNeedsBuild=true
-                    break
-                fi
-            fi
-        done
-    fi
-
-    if [ "${bNeedsBuild}" = true ]; then
+    if fbImageIsStale; then
         echo "[vvm] Building container image..."
-        "${DOCKER}" build -t "${VVM_IMAGE}" "${VVM_DIR}"
+        "${sDocker}" build -t "${VVM_IMAGE}" "${VVM_DIR}"
         fnBuildClaudeOverlay
         echo "[vvm] Image built."
     fi
@@ -149,7 +164,7 @@ fnBuildImage() {
 fnBuildClaudeOverlay() {
     if [ -f "${VVM_DIR}/.claude_enabled" ] && [ -f "${VVM_DIR}/Dockerfile.claude" ]; then
         echo "[vvm] Building Claude Code overlay..."
-        "${DOCKER}" build -t "${VVM_IMAGE}" -f "${VVM_DIR}/Dockerfile.claude" "${VVM_DIR}"
+        "${sDocker}" build -t "${VVM_IMAGE}" -f "${VVM_DIR}/Dockerfile.claude" "${VVM_DIR}"
     fi
 }
 
@@ -157,26 +172,16 @@ fnBuildClaudeOverlay() {
 # fnCreateVolume: Ensure the named volume exists
 # ---------------------------------------------------------------------------
 fnCreateVolume() {
-    if ! "${DOCKER}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
+    if ! "${sDocker}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
         echo "[vvm] Creating persistent workspace volume..."
-        "${DOCKER}" volume create "${VVM_VOLUME}"
+        "${sDocker}" volume create "${VVM_VOLUME}"
     fi
 }
 
 # ---------------------------------------------------------------------------
-# fnStartContainer: Run the container with appropriate mounts
+# fnMountGitHubToken: Inject the gh CLI token into the container arguments
 # ---------------------------------------------------------------------------
-fnStartContainer() {
-    local daRunArgs=(
-        --rm
-        -it
-        --name "${VVM_CONTAINER}"
-        --hostname vvm
-        --cpus "${CONTAINER_CORES}"
-        -v "${VVM_VOLUME}:/workspace"
-    )
-
-    # GitHub authentication via gh CLI credential store
+fnMountGitHubToken() {
     local sToken=""
     if command -v gh > /dev/null 2>&1; then
         sToken=$(gh auth token 2>/dev/null || true)
@@ -186,36 +191,69 @@ fnStartContainer() {
         sTokenFile=$(mktemp "${HOME}/.vvm_auth_XXXXXX")
         echo "${sToken}" > "${sTokenFile}"
         chmod 600 "${sTokenFile}"
-        CLEANUP_FILES+=("${sTokenFile}")
-        daRunArgs+=(-v "${sTokenFile}:/run/secrets/gh_token:ro")
+        saCleanupFiles+=("${sTokenFile}")
+        saRunArgs+=(-v "${sTokenFile}:/run/secrets/gh_token:ro")
     else
         echo "[vvm] WARNING: GitHub CLI not authenticated."
         echo "[vvm]   Private repos will fail to clone."
         echo "[vvm]   Run: gh auth login"
     fi
+}
 
-    # X11 forwarding for matplotlib plt.show()
+# ---------------------------------------------------------------------------
+# fnConfigureMacX11: Start XQuartz and configure display on macOS
+# ---------------------------------------------------------------------------
+fnConfigureMacX11() {
+    if ! command -v xquartz > /dev/null 2>&1 && [ ! -d "/opt/X11" ]; then
+        return
+    fi
+    if ! pgrep -x Xquartz > /dev/null 2>&1 \
+        && ! pgrep -x X11.bin > /dev/null 2>&1 \
+        && ! pgrep -x X11 > /dev/null 2>&1; then
+        echo "[vvm] Starting XQuartz..."
+        open -ga XQuartz
+        sleep 2
+    fi
+    fnDisableX11Auth
+    saRunArgs+=(-e "DISPLAY=host.docker.internal:0")
+}
+
+# ---------------------------------------------------------------------------
+# fnConfigureLinuxX11: Grant container access to the host X11 display
+# ---------------------------------------------------------------------------
+fnConfigureLinuxX11() {
+    if [[ "${DISPLAY:-}" != *:* ]]; then
+        return
+    fi
+    if command -v xhost > /dev/null 2>&1; then
+        xhost +local:docker > /dev/null 2>&1 || true
+    fi
+    saRunArgs+=(-e "DISPLAY=${DISPLAY}")
+    saRunArgs+=(-v "/tmp/.X11-unix:/tmp/.X11-unix")
+}
+
+# ---------------------------------------------------------------------------
+# fnStartContainer: Run the container with appropriate mounts
+# ---------------------------------------------------------------------------
+fnStartContainer() {
+    saRunArgs=(
+        --rm
+        -it
+        --name "${VVM_CONTAINER}"
+        --hostname vvm
+        --cpus "${iContainerCores}"
+        -v "${VVM_VOLUME}:/workspace"
+    )
+
+    fnMountGitHubToken
+
     if [[ "$(uname -s)" == "Darwin" ]]; then
-        if command -v xquartz > /dev/null 2>&1 || [ -d "/opt/X11" ]; then
-            if ! pgrep -x Xquartz > /dev/null 2>&1 \
-                && ! pgrep -x X11.bin > /dev/null 2>&1 \
-                && ! pgrep -x X11 > /dev/null 2>&1; then
-                echo "[vvm] Starting XQuartz..."
-                open -ga XQuartz
-                sleep 2
-            fi
-            fnDisableX11Auth
-            daRunArgs+=(-e "DISPLAY=host.docker.internal:0")
-        fi
-    elif [[ "${DISPLAY:-}" == *:* ]]; then
-        if command -v xhost > /dev/null 2>&1; then
-            xhost +local:docker > /dev/null 2>&1 || true
-        fi
-        daRunArgs+=(-e "DISPLAY=${DISPLAY}")
-        daRunArgs+=(-v "/tmp/.X11-unix:/tmp/.X11-unix")
+        fnConfigureMacX11
+    else
+        fnConfigureLinuxX11
     fi
 
-    "${DOCKER}" run "${daRunArgs[@]}" "${VVM_IMAGE}" "$@"
+    "${sDocker}" run "${saRunArgs[@]}" "${VVM_IMAGE}" "$@"
 }
 
 # ---------------------------------------------------------------------------
@@ -225,29 +263,47 @@ fnShowStatus() {
     echo "[vvm] Status:"
     echo ""
 
-    if "${DOCKER}" info > /dev/null 2>&1; then
-        echo "  Docker daemon: running"
-    else
+    if ! "${sDocker}" info > /dev/null 2>&1; then
         echo "  Docker daemon: NOT RUNNING"
         return
     fi
+    echo "  Docker daemon: running"
 
-    if "${DOCKER}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
+    fnShowImageStatus
+    fnShowVolumeStatus
+    fnShowContainerStatus
+}
+
+# ---------------------------------------------------------------------------
+# fnShowImageStatus: Print the image state
+# ---------------------------------------------------------------------------
+fnShowImageStatus() {
+    if "${sDocker}" image inspect "${VVM_IMAGE}" > /dev/null 2>&1; then
         local sCreated
-        sCreated=$("${DOCKER}" image inspect "${VVM_IMAGE}" \
+        sCreated=$("${sDocker}" image inspect "${VVM_IMAGE}" \
             --format '{{.Created}}' 2>/dev/null)
         echo "  Image: ${VVM_IMAGE} (built: ${sCreated})"
     else
         echo "  Image: not built"
     fi
+}
 
-    if "${DOCKER}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
+# ---------------------------------------------------------------------------
+# fnShowVolumeStatus: Print the volume state
+# ---------------------------------------------------------------------------
+fnShowVolumeStatus() {
+    if "${sDocker}" volume inspect "${VVM_VOLUME}" > /dev/null 2>&1; then
         echo "  Volume: ${VVM_VOLUME} exists"
     else
         echo "  Volume: not created"
     fi
+}
 
-    if "${DOCKER}" container inspect "${VVM_CONTAINER}" > /dev/null 2>&1; then
+# ---------------------------------------------------------------------------
+# fnShowContainerStatus: Print the container state
+# ---------------------------------------------------------------------------
+fnShowContainerStatus() {
+    if "${sDocker}" container inspect "${VVM_CONTAINER}" > /dev/null 2>&1; then
         echo "  Container: running"
     else
         echo "  Container: not running"
@@ -262,7 +318,7 @@ fnDestroyVolume() {
     echo -n "Are you sure? [y/N] "
     read -r sAnswer
     if [[ "${sAnswer}" =~ ^[Yy]$ ]]; then
-        "${DOCKER}" volume rm "${VVM_VOLUME}" 2>/dev/null || true
+        "${sDocker}" volume rm "${VVM_VOLUME}" 2>/dev/null || true
         echo "[vvm] Volume removed."
     else
         echo "[vvm] Cancelled."
@@ -314,7 +370,7 @@ case "${1:-}" in
         shift
         fnCheckDocker
         echo "[vvm] Forcing image rebuild..."
-        "${DOCKER}" build --no-cache -t "${VVM_IMAGE}" "${VVM_DIR}"
+        "${sDocker}" build --no-cache -t "${VVM_IMAGE}" "${VVM_DIR}"
         fnBuildClaudeOverlay
         fnCreateVolume
         fnStartContainer "$@"

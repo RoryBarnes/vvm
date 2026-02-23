@@ -15,11 +15,9 @@
 
 set -e
 
-VVM_CONTAINER="vvm"
-VVM_WORKSPACE="/workspace"
-
-# ---------------------------------------------------------------------------
-fnPrintError() { echo "Error: $1" >&2; }
+# shellcheck source=bin/vvmTransferCommon.sh
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "${SCRIPT_DIR}/vvmTransferCommon.sh"
 
 # ---------------------------------------------------------------------------
 # fnPrintUsage: Display help text
@@ -40,47 +38,6 @@ fnPrintUsage() {
     echo "  vvm_pull output.csv .                    Copy file to current dir"
     echo "  vvm_pull -r vplanet-private/ ./backup/   Copy dir from container"
     echo "  vvm_pull /vplanet/results.h5 .           Copy from /workspace/vplanet/"
-}
-
-# ---------------------------------------------------------------------------
-# fnCheckContainer: Verify the VVM container is running
-# ---------------------------------------------------------------------------
-fnCheckContainer() {
-    if ! command -v docker > /dev/null 2>&1; then
-        fnPrintError "docker not found on PATH."
-        exit 1
-    fi
-    if ! docker container inspect "${VVM_CONTAINER}" > /dev/null 2>&1; then
-        fnPrintError "VVM container is not running. Start it with: vvm"
-        exit 1
-    fi
-}
-
-# ---------------------------------------------------------------------------
-# fsResolveContainerPath: Map a user-facing path to a workspace-absolute path
-# Arguments: sRelativePath
-# Prints: the resolved absolute path inside the container
-# ---------------------------------------------------------------------------
-fsResolveContainerPath() {
-    case "$1" in
-        /*) echo "${VVM_WORKSPACE}$1" ;;
-        .)  echo "${VVM_WORKSPACE}" ;;
-        *)  echo "${VVM_WORKSPACE}/$1" ;;
-    esac
-}
-
-# ---------------------------------------------------------------------------
-# fbConfirmRecursive: Prompt the user before copying a directory
-# Arguments: sDisplayPath
-# Returns: 0 if confirmed, 1 otherwise
-# ---------------------------------------------------------------------------
-fbConfirmRecursive() {
-    printf "'%s' is a directory. Copy recursively? [y/N] " "$1"
-    read -r sAnswer
-    case "${sAnswer}" in
-        [Yy]) return 0 ;;
-        *)    return 1 ;;
-    esac
 }
 
 # ===========================================================================

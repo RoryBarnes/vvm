@@ -3,7 +3,7 @@
 These tests require Docker to be running. They are marked with the 'docker'
 marker so they can be skipped in fast CI runs:
 
-    pytest tests/test_docker_build.py -v -m docker
+    pytest tests/testDockerBuild.py -v -m docker
     pytest tests/ -v -m "not docker"       # skip Docker tests
 """
 
@@ -128,13 +128,13 @@ class TestDockerBuild:
 
     def test_check_isolation_exists(self):
         result = fnDockerRun(
-            "test -x /home/vplanet/check_isolation.sh && echo ok"
+            "test -x /home/vplanet/checkIsolation.sh && echo ok"
         )
         assert "ok" in result.stdout
 
     def test_check_isolation_owned_by_vplanet(self):
         result = fnDockerRun(
-            "stat -c '%U' /home/vplanet/check_isolation.sh"
+            "stat -c '%U' /home/vplanet/checkIsolation.sh"
         )
         assert result.returncode == 0
         assert "vplanet" in result.stdout

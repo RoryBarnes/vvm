@@ -37,13 +37,13 @@ teardown() {
 @test "fnParseReposConf: parses correct number of entries" {
     fnParseReposConf
 
-    [ "${#REPO_NAMES[@]}" -eq 3 ]
+    [ "${#saRepoNames[@]}" -eq 3 ]
 }
 
 @test "fnParseReposConf: skips comment lines" {
     fnParseReposConf
 
-    for sName in "${REPO_NAMES[@]}"; do
+    for sName in "${saRepoNames[@]}"; do
         [[ ! "${sName}" =~ ^# ]]
     done
 }
@@ -51,7 +51,7 @@ teardown() {
 @test "fnParseReposConf: skips blank lines" {
     fnParseReposConf
 
-    for sName in "${REPO_NAMES[@]}"; do
+    for sName in "${saRepoNames[@]}"; do
         [ -n "${sName}" ]
     done
 }
@@ -59,32 +59,32 @@ teardown() {
 @test "fnParseReposConf: captures repo names correctly" {
     fnParseReposConf
 
-    [ "${REPO_NAMES[0]}" = "repo-one" ]
-    [ "${REPO_NAMES[1]}" = "repo-two" ]
-    [ "${REPO_NAMES[2]}" = "repo-three" ]
+    [ "${saRepoNames[0]}" = "repo-one" ]
+    [ "${saRepoNames[1]}" = "repo-two" ]
+    [ "${saRepoNames[2]}" = "repo-three" ]
 }
 
 @test "fnParseReposConf: captures URLs correctly" {
     fnParseReposConf
 
-    [ "${REPO_URLS[0]}" = "git@github.com:org/repo-one.git" ]
-    [ "${REPO_URLS[1]}" = "git@github.com:org/repo-two.git" ]
+    [ "${saRepoUrls[0]}" = "git@github.com:org/repo-one.git" ]
+    [ "${saRepoUrls[1]}" = "git@github.com:org/repo-two.git" ]
 }
 
 @test "fnParseReposConf: captures branches correctly" {
     fnParseReposConf
 
-    [ "${REPO_BRANCHES[0]}" = "main" ]
-    [ "${REPO_BRANCHES[1]}" = "v2.0" ]
-    [ "${REPO_BRANCHES[2]}" = "develop" ]
+    [ "${saRepoBranches[0]}" = "main" ]
+    [ "${saRepoBranches[1]}" = "v2.0" ]
+    [ "${saRepoBranches[2]}" = "develop" ]
 }
 
 @test "fnParseReposConf: captures install methods correctly" {
     fnParseReposConf
 
-    [ "${REPO_METHODS[0]}" = "pip_no_deps" ]
-    [ "${REPO_METHODS[1]}" = "c_and_pip" ]
-    [ "${REPO_METHODS[2]}" = "scripts_only" ]
+    [ "${saRepoMethods[0]}" = "pip_no_deps" ]
+    [ "${saRepoMethods[1]}" = "c_and_pip" ]
+    [ "${saRepoMethods[2]}" = "scripts_only" ]
 }
 
 # ---------------------------------------------------------------------------
@@ -173,7 +173,7 @@ teardown() {
 
     fnParseReposConf
 
-    [ "${#REPO_NAMES[@]}" -eq 0 ]
+    [ "${#saRepoNames[@]}" -eq 0 ]
 }
 
 @test "fnParseReposConf: handles comments-only repos.conf" {
@@ -184,7 +184,7 @@ CONF
 
     fnParseReposConf
 
-    [ "${#REPO_NAMES[@]}" -eq 0 ]
+    [ "${#saRepoNames[@]}" -eq 0 ]
 }
 
 # ---------------------------------------------------------------------------

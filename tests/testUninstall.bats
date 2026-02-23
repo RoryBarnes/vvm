@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Unit tests for uninstall_vvm.sh functions.
+# Unit tests for uninstallVvm.sh functions.
 # The VVM_TESTING guard lets us source the script without executing main.
 
 REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 setup() {
     TEST_DIR="$(mktemp -d)"
     export VVM_TESTING=1
-    source "${REPO_ROOT}/uninstall_vvm.sh"
+    source "${REPO_ROOT}/uninstallVvm.sh"
 }
 
 teardown() {
@@ -173,7 +173,7 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "source guard prevents main from executing" {
-    run bash -c 'export VVM_TESTING=1; . "'"${REPO_ROOT}"'/uninstall_vvm.sh"; echo sourced_ok'
+    run bash -c 'export VVM_TESTING=1; . "'"${REPO_ROOT}"'/uninstallVvm.sh"; echo sourced_ok'
 
     [ "$status" -eq 0 ]
     [[ "$output" =~ "sourced_ok" ]]

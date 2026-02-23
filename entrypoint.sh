@@ -15,18 +15,25 @@ fnPrintBanner() {
 }
 
 # ---------------------------------------------------------------------------
+# fsReadGitHubToken: Find and return a GitHub token from secrets or gh CLI
+# ---------------------------------------------------------------------------
+fsReadGitHubToken() {
+    local sTokenFile="/run/secrets/gh_token"
+    if [ -f "${sTokenFile}" ]; then
+        cat "${sTokenFile}"
+        return
+    fi
+    if command -v gh > /dev/null 2>&1; then
+        gh auth token 2>/dev/null || true
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # fnConfigureGit: Configure GitHub authentication via token
 # ---------------------------------------------------------------------------
 fnConfigureGit() {
-    local sTokenFile="/run/secrets/gh_token"
-    local sToken=""
-
-    if [ -f "${sTokenFile}" ]; then
-        sToken=$(cat "${sTokenFile}")
-    elif command -v gh > /dev/null 2>&1; then
-        sToken=$(gh auth token 2>/dev/null || true)
-    fi
-
+    local sToken
+    sToken=$(fsReadGitHubToken)
     if [ -n "${sToken}" ]; then
         echo "[vvm] GitHub credentials detected."
         git config --system url."https://${sToken}@github.com/".insteadOf \
@@ -45,19 +52,62 @@ fnConfigureGit() {
 # fnParseReposConf: Read repos.conf into parallel arrays
 # ---------------------------------------------------------------------------
 fnParseReposConf() {
-    REPO_NAMES=()
-    REPO_URLS=()
-    REPO_BRANCHES=()
-    REPO_METHODS=()
+    saRepoNames=()
+    saRepoUrls=()
+    saRepoBranches=()
+    saRepoMethods=()
 
     while IFS='|' read -r sName sUrl sBranch sMethod; do
         [[ "${sName}" =~ ^#.*$ ]] && continue
         [[ -z "${sName}" ]] && continue
-        REPO_NAMES+=("${sName}")
-        REPO_URLS+=("${sUrl}")
-        REPO_BRANCHES+=("${sBranch}")
-        REPO_METHODS+=("${sMethod}")
+        saRepoNames+=("${sName}")
+        saRepoUrls+=("${sUrl}")
+        saRepoBranches+=("${sBranch}")
+        saRepoMethods+=("${sMethod}")
     done < "${REPOS_CONF}"
+}
+
+# ---------------------------------------------------------------------------
+# fnCloneRepo: Clone a repository that does not yet exist locally
+# Arguments: sName sUrl sBranch
+# ---------------------------------------------------------------------------
+fnCloneRepo() {
+    local sName="$1"
+    local sUrl="$2"
+    local sBranch="$3"
+    local sRepoPath="${WORKSPACE}/${sName}"
+
+    echo "[vvm] Cloning ${sName} (branch: ${sBranch})..."
+    if ! git clone --branch "${sBranch}" "${sUrl}" "${sRepoPath}" 2>&1; then
+        echo "[vvm]   Clone failed for ${sName} (may require authentication)."
+        return 0
+    fi
+    cd "${sRepoPath}"
+    git fetch --tags origin
+    cd "${WORKSPACE}"
+}
+
+# ---------------------------------------------------------------------------
+# fnUpdateRepo: Pull latest changes for an existing repository
+# Arguments: sName sBranch
+# ---------------------------------------------------------------------------
+fnUpdateRepo() {
+    local sName="$1"
+    local sBranch="$2"
+    local sRepoPath="${WORKSPACE}/${sName}"
+
+    echo "[vvm] Updating ${sName}..."
+    cd "${sRepoPath}"
+    git fetch origin --tags
+    local sCurrentBranch
+    sCurrentBranch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "${sCurrentBranch}" = "${sBranch}" ]; then
+        git pull --ff-only origin "${sBranch}" 2>/dev/null || \
+            echo "[vvm]   Pull skipped for ${sName} (local changes or diverged)."
+    else
+        echo "[vvm]   ${sName} on branch '${sCurrentBranch}', not '${sBranch}'. Skipping pull."
+    fi
+    cd "${WORKSPACE}"
 }
 
 # ---------------------------------------------------------------------------
@@ -68,30 +118,11 @@ fnCloneOrPull() {
     local sName="$1"
     local sUrl="$2"
     local sBranch="$3"
-    local sRepoPath="${WORKSPACE}/${sName}"
 
-    if [ ! -d "${sRepoPath}/.git" ]; then
-        echo "[vvm] Cloning ${sName} (branch: ${sBranch})..."
-        if ! git clone --branch "${sBranch}" "${sUrl}" "${sRepoPath}" 2>&1; then
-            echo "[vvm]   Clone failed for ${sName} (may require authentication)."
-            return 0
-        fi
-        cd "${sRepoPath}"
-        git fetch --tags origin
-        cd "${WORKSPACE}"
+    if [ ! -d "${WORKSPACE}/${sName}/.git" ]; then
+        fnCloneRepo "${sName}" "${sUrl}" "${sBranch}"
     else
-        echo "[vvm] Updating ${sName}..."
-        cd "${sRepoPath}"
-        git fetch origin --tags
-        local sCurrentBranch
-        sCurrentBranch=$(git rev-parse --abbrev-ref HEAD)
-        if [ "${sCurrentBranch}" = "${sBranch}" ]; then
-            git pull --ff-only origin "${sBranch}" 2>/dev/null || \
-                echo "[vvm]   Pull skipped for ${sName} (local changes or diverged)."
-        else
-            echo "[vvm]   ${sName} on branch '${sCurrentBranch}', not '${sBranch}'. Skipping pull."
-        fi
-        cd "${WORKSPACE}"
+        fnUpdateRepo "${sName}" "${sBranch}"
     fi
 }
 
@@ -102,9 +133,9 @@ fnSyncAllRepos() {
     echo "[vvm] Syncing repositories..."
     echo ""
 
-    local iCount=${#REPO_NAMES[@]}
+    local iCount=${#saRepoNames[@]}
     for (( i=0; i<iCount; i++ )); do
-        fnCloneOrPull "${REPO_NAMES[$i]}" "${REPO_URLS[$i]}" "${REPO_BRANCHES[$i]}"
+        fnCloneOrPull "${saRepoNames[$i]}" "${saRepoUrls[$i]}" "${saRepoBranches[$i]}"
     done
 
     echo ""
@@ -112,33 +143,48 @@ fnSyncAllRepos() {
 }
 
 # ---------------------------------------------------------------------------
-# fnBuildVplanet: Compile the native C binary with optimizations
+# fsFindVplanetSource: Locate the vplanet source directory
 # ---------------------------------------------------------------------------
-fnBuildVplanet() {
-    local sRepoPath=""
-
+fsFindVplanetSource() {
     if [ -d "${WORKSPACE}/vplanet-private/src" ]; then
-        sRepoPath="${WORKSPACE}/vplanet-private"
-        echo "[vvm] Building vplanet from vplanet-private..."
+        echo "${WORKSPACE}/vplanet-private"
     elif [ -d "${WORKSPACE}/vplanet/src" ]; then
-        sRepoPath="${WORKSPACE}/vplanet"
-        echo "[vvm] Building vplanet from public repository..."
-    else
-        echo "[vvm] WARNING: No vplanet source found. Skipping build."
-        return 0
+        echo "${WORKSPACE}/vplanet"
     fi
+}
 
+# ---------------------------------------------------------------------------
+# fnCompileVplanet: Run the optimized build and update PATH
+# ---------------------------------------------------------------------------
+fnCompileVplanet() {
+    local sRepoPath="$1"
     cd "${sRepoPath}"
     if ! make opt; then
         echo "[vvm] WARNING: vplanet build failed. You can retry manually:"
         echo "[vvm]   cd ${sRepoPath} && make opt"
         cd "${WORKSPACE}"
-        return 0
+        return 1
     fi
     cd "${WORKSPACE}"
-
     VPLANET_BINARY="${sRepoPath}/bin/vplanet"
     export PATH="${sRepoPath}/bin:${PATH}"
+}
+
+# ---------------------------------------------------------------------------
+# fnBuildVplanet: Compile the native C binary with optimizations
+# ---------------------------------------------------------------------------
+fnBuildVplanet() {
+    local sRepoPath
+    sRepoPath=$(fsFindVplanetSource)
+    if [ -z "${sRepoPath}" ]; then
+        echo "[vvm] WARNING: No vplanet source found. Skipping build."
+        return 0
+    fi
+
+    echo "[vvm] Building vplanet from $(basename "${sRepoPath}")..."
+    if ! fnCompileVplanet "${sRepoPath}"; then
+        return 0
+    fi
 
     if [ -x "${VPLANET_BINARY}" ]; then
         echo "[vvm] vplanet binary ready: ${VPLANET_BINARY}"
@@ -149,6 +195,18 @@ fnBuildVplanet() {
 }
 
 # ---------------------------------------------------------------------------
+# fnPipInstall: Run pip install with the given flags
+# Arguments: sRepoPath sName [pip flags...]
+# ---------------------------------------------------------------------------
+fnPipInstall() {
+    local sRepoPath="$1"
+    local sName="$2"
+    shift 2
+    echo "[vvm] Installing ${sName}..."
+    pip install -e "${sRepoPath}" "$@" -q
+}
+
+# ---------------------------------------------------------------------------
 # fnInstallRepo: Install a single repo per its install method
 # Arguments: sName sMethod
 # ---------------------------------------------------------------------------
@@ -156,29 +214,17 @@ fnInstallRepo() {
     local sName="$1"
     local sMethod="$2"
     local sRepoPath="${WORKSPACE}/${sName}"
-
     case "${sMethod}" in
-        c_and_pip)
-            echo "[vvm] Installing ${sName} Python package..."
-            pip install -e "${sRepoPath}" --no-deps --no-build-isolation -q
-            ;;
+        c_and_pip|pip_no_deps)
+            fnPipInstall "${sRepoPath}" "${sName}" --no-deps --no-build-isolation ;;
         pip_editable)
-            echo "[vvm] Installing ${sName}..."
-            pip install -e "${sRepoPath}" --no-build-isolation -q
-            ;;
-        pip_no_deps)
-            echo "[vvm] Installing ${sName}..."
-            pip install -e "${sRepoPath}" --no-deps --no-build-isolation -q
-            ;;
+            fnPipInstall "${sRepoPath}" "${sName}" --no-build-isolation ;;
         scripts_only)
-            echo "[vvm] ${sName} available via PYTHONPATH and PATH."
-            ;;
+            echo "[vvm] ${sName} available via PYTHONPATH and PATH." ;;
         reference)
-            echo "[vvm] ${sName} cloned for reference (not installed)."
-            ;;
+            echo "[vvm] ${sName} cloned for reference (not installed)." ;;
         *)
-            echo "[vvm] WARNING: Unknown install method '${sMethod}' for ${sName}."
-            ;;
+            echo "[vvm] WARNING: Unknown install method '${sMethod}' for ${sName}." ;;
     esac
 }
 
@@ -189,10 +235,10 @@ fnInstallAllRepos() {
     echo ""
     echo "[vvm] Installing Python packages..."
 
-    local iCount=${#REPO_NAMES[@]}
+    local iCount=${#saRepoNames[@]}
     for (( i=0; i<iCount; i++ )); do
-        if [ -d "${WORKSPACE}/${REPO_NAMES[$i]}" ]; then
-            fnInstallRepo "${REPO_NAMES[$i]}" "${REPO_METHODS[$i]}"
+        if [ -d "${WORKSPACE}/${saRepoNames[$i]}" ]; then
+            fnInstallRepo "${saRepoNames[$i]}" "${saRepoMethods[$i]}"
         fi
     done
 

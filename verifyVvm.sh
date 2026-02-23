@@ -1,5 +1,5 @@
 #!/bin/sh
-# verify_vvm.sh - Verify the VVM environment is functional.
+# verifyVvm.sh - Verify the VVM environment is functional.
 # Run this script inside the VVM container.
 
 set -e
