@@ -317,7 +317,7 @@ interactive development sessions. It is not included in the default image.</p>
 <p><strong>Option 1: Install during setup</strong></p>
 <p>Pass <code class="docutils literal notranslate"><span class="pre">--claude</span></code> when running the installer to include Claude Code in the
 Docker image:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--claude
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>installVvm.sh<span class="w"> </span>--claude
 </pre></div>
 </div>
 <p>This creates a <code class="docutils literal notranslate"><span class="pre">Dockerfile.claude</span></code> overlay that layers Node.js and Claude
@@ -351,10 +351,10 @@ your first session is still active:</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">connect_vvm</span></code> command is available on the host after running the
 installer. It is equivalent to <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">-u</span> <span class="pre">vplanet</span> <span class="pre">vvm</span> <span class="pre">bash</span></code>.</p>
-<p><strong>check_isolation.sh</strong> verifies that the container’s filesystem is
+<p><strong>checkIsolation.sh</strong> verifies that the container’s filesystem is
 isolated from the host. It is located in the <code class="docutils literal notranslate"><span class="pre">vplanet</span></code> user’s home
 directory and can be run inside the container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/check_isolation.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/checkIsolation.sh
 </pre></div>
 </div>
 <p>The script checks for host bind mounts, listening network ports, Docker

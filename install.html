@@ -99,23 +99,23 @@ Subsequent starts take under a minute.</p>
 </div>
 <section id="automated-install">
 <h2>Automated Install<a class="headerlink" href="#automated-install" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">install_vvm.sh</span></code> script detects your operating system and package
+<p>The <code class="docutils literal notranslate"><span class="pre">installVvm.sh</span></code> script detects your operating system and package
 manager, installs all dependencies, clones <code class="docutils literal notranslate"><span class="pre">VVM</span></code>, creates a symlink
 so that <code class="docutils literal notranslate"><span class="pre">vvm</span></code> is available from any terminal, and adds the <code class="docutils literal notranslate"><span class="pre">VVM</span></code>
 utilities directory to your shell’s <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RoryBarnes/vvm.git
 <span class="nb">cd</span><span class="w"> </span>vvm
-sh<span class="w"> </span>install_vvm.sh
+sh<span class="w"> </span>installVvm.sh
 </pre></div>
 </div>
 <p>To accept all prompts automatically (no confirmation required), pass
 <code class="docutils literal notranslate"><span class="pre">-y</span></code> or <code class="docutils literal notranslate"><span class="pre">--yes</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>-y
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>installVvm.sh<span class="w"> </span>-y
 </pre></div>
 </div>
 <p>To include <a class="reference external" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>
 in the Docker image, pass the <code class="docutils literal notranslate"><span class="pre">--claude</span></code> flag (flags may be combined):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>install_vvm.sh<span class="w"> </span>--yes<span class="w"> </span>--claude
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>installVvm.sh<span class="w"> </span>--yes<span class="w"> </span>--claude
 </pre></div>
 </div>
 <p>The installer adds the <code class="docutils literal notranslate"><span class="pre">vvm/bin</span></code> directory to your shell configuration
@@ -239,7 +239,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 confirms the Python package is importable. The third runs the <code class="docutils literal notranslate"><span class="pre">VPLanet</span></code>
 test suite.</p>
 <p>A verification script is also available inside the container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>/workspace/verify_vvm.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>/workspace/verifyVvm.sh
 </pre></div>
 </div>
 </section>
@@ -247,7 +247,7 @@ test suite.</p>
 <h2>Uninstalling<a class="headerlink" href="#uninstalling" title="Link to this heading"></a></h2>
 <p>To remove <code class="docutils literal notranslate"><span class="pre">VVM</span></code> and all of its Docker resources, run the uninstall script
 from the <code class="docutils literal notranslate"><span class="pre">VVM</span></code> repository directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>uninstall_vvm.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh<span class="w"> </span>uninstallVvm.sh
 </pre></div>
 </div>
 <p>The script removes:</p>
