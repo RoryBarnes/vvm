@@ -138,3 +138,15 @@ class TestDockerBuild:
         )
         assert result.returncode == 0
         assert "vplanet" in result.stdout
+
+    def test_evince_available(self):
+        result = fnDockerRun("which evince")
+        assert result.returncode == 0
+
+    def test_eog_available(self):
+        result = fnDockerRun("which eog")
+        assert result.returncode == 0
+
+    def test_feh_available(self):
+        result = fnDockerRun("which feh")
+        assert result.returncode == 0

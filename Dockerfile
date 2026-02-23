@@ -32,6 +32,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -s /usr/lib/"$(uname -m)"-linux-gnu/hdf5/serial/libhdf5*.so* \
              /usr/lib/"$(uname -m)"-linux-gnu/
 
+# X11 viewers for displaying figures and documents on the host
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    eog \
+    evince \
+    feh \
+    && rm -rf /var/lib/apt/lists/*
+
 # LaTeX for matplotlib's tex rendering (required by vplot)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-latex-base \
