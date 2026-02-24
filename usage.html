@@ -440,11 +440,16 @@ and connects automatically</p></li>
 your host credentials, so <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host is sufficient.</p>
 <p>Both options install the Python and C/C++ extensions inside the container
 automatically.</p>
-<p><strong>macOS with Colima:</strong> The <code class="docutils literal notranslate"><span class="pre">installVvm.sh</span></code> script automatically
-configures VS Code’s <code class="docutils literal notranslate"><span class="pre">docker.host</span></code> setting to point to the Colima
-socket. If VS Code cannot find the container, verify the setting exists
-in your VS Code settings (<code class="docutils literal notranslate"><span class="pre">Cmd+,</span></code>):</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;docker.host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unix:///Users/YOUR_USERNAME/.colima/default/docker.sock&quot;</span>
+<p><strong>macOS with Colima:</strong> The <code class="docutils literal notranslate"><span class="pre">installVvm.sh</span></code> script creates a symlink
+from <code class="docutils literal notranslate"><span class="pre">/var/run/docker.sock</span></code> to the Colima socket so that VS Code (and
+other tools) can find Docker at the standard path. If VS Code cannot
+find the container, verify the symlink exists:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-l<span class="w"> </span>/var/run/docker.sock
+<span class="c1"># Should point to ~/.colima/default/docker.sock</span>
+</pre></div>
+</div>
+<p>If the symlink is missing, recreate it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span>~/.colima/default/docker.sock<span class="w"> </span>/var/run/docker.sock
 </pre></div>
 </div>
 </section>
