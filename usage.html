@@ -440,6 +440,13 @@ and connects automatically</p></li>
 your host credentials, so <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code> on the host is sufficient.</p>
 <p>Both options install the Python and C/C++ extensions inside the container
 automatically.</p>
+<p><strong>macOS with Colima:</strong> The <code class="docutils literal notranslate"><span class="pre">installVvm.sh</span></code> script automatically
+configures VS Code’s <code class="docutils literal notranslate"><span class="pre">docker.host</span></code> setting to point to the Colima
+socket. If VS Code cannot find the container, verify the setting exists
+in your VS Code settings (<code class="docutils literal notranslate"><span class="pre">Cmd+,</span></code>):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;docker.host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unix:///Users/YOUR_USERNAME/.colima/default/docker.sock&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="claude-code-optional">
 <h2>Claude Code (Optional)<a class="headerlink" href="#claude-code-optional" title="Link to this heading"></a></h2>
