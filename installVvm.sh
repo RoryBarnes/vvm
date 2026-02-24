@@ -283,34 +283,17 @@ fnConfigureCompletions() {
 }
 
 # ---------------------------------------------------------------------------
-# fnConfigureVscodeDocker: Set docker.host in VS Code for Colima
-# Arguments: sSocketPath
+# fnLinkColimaSocket: Symlink Colima socket to the standard Docker path
 # ---------------------------------------------------------------------------
-fnConfigureVscodeDocker() {
-    local sSocketPath="$1"
-    local sSettingsDir="${HOME}/Library/Application Support/Code/User"
-    if [ ! -d "${sSettingsDir}" ]; then
+fnLinkColimaSocket() {
+    local sColimaSocket="${HOME}/.colima/default/docker.sock"
+    local sStandardSocket="/var/run/docker.sock"
+    if [ -S "${sStandardSocket}" ]; then
+        echo "[install] ${sStandardSocket} already exists."
         return
     fi
-    local sSettingsFile="${sSettingsDir}/settings.json"
-    if [ -f "${sSettingsFile}" ] && grep -q '"docker.host"' "${sSettingsFile}" 2>/dev/null; then
-        echo "[install] VS Code docker.host already configured."
-        return
-    fi
-    local sDockerHost="unix://${sSocketPath}"
-    python3 << PYEOF
-import json, os
-sPath = "${sSettingsFile}"
-dictSettings = {}
-if os.path.isfile(sPath):
-    with open(sPath) as f:
-        dictSettings = json.load(f)
-dictSettings["docker.host"] = "${sDockerHost}"
-with open(sPath, "w") as f:
-    json.dump(dictSettings, f, indent=4)
-    f.write("\\n")
-PYEOF
-    echo "[install] Configured VS Code docker.host for Colima."
+    echo "[install] Linking Colima socket to ${sStandardSocket}..."
+    sudo ln -sf "${sColimaSocket}" "${sStandardSocket}"
 }
 
 # ---------------------------------------------------------------------------
@@ -341,7 +324,7 @@ if [ "${sPlatform}" = "Darwin" ]; then
         fnInstallHomebrew
         fnCloneAndLink "$(brew --prefix)/bin"
     fi
-    fnConfigureVscodeDocker "${HOME}/.colima/default/docker.sock"
+    fnLinkColimaSocket
     echo ""
     echo "[install] Installation complete."
     echo "[install] Start Colima before first use:"

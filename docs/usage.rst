@@ -349,14 +349,21 @@ your host credentials, so ``gh auth login`` on the host is sufficient.
 Both options install the Python and C/C++ extensions inside the container
 automatically.
 
-**macOS with Colima:** The ``installVvm.sh`` script automatically
-configures VS Code's ``docker.host`` setting to point to the Colima
-socket. If VS Code cannot find the container, verify the setting exists
-in your VS Code settings (``Cmd+,``):
+**macOS with Colima:** The ``installVvm.sh`` script creates a symlink
+from ``/var/run/docker.sock`` to the Colima socket so that VS Code (and
+other tools) can find Docker at the standard path. If VS Code cannot
+find the container, verify the symlink exists:
 
-.. code-block:: json
+.. code-block:: bash
 
-    "docker.host": "unix:///Users/YOUR_USERNAME/.colima/default/docker.sock"
+    ls -l /var/run/docker.sock
+    # Should point to ~/.colima/default/docker.sock
+
+If the symlink is missing, recreate it:
+
+.. code-block:: bash
+
+    sudo ln -sf ~/.colima/default/docker.sock /var/run/docker.sock
 
 Claude Code (Optional)
 ----------------------
