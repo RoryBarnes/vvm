@@ -150,3 +150,18 @@ class TestDockerBuild:
     def test_feh_available(self):
         result = fnDockerRun("which feh")
         assert result.returncode == 0
+
+    def test_devcontainer_label_exists(self):
+        """Verify the image carries the devcontainer.metadata label."""
+        result = subprocess.run(
+            [
+                "docker", "inspect", IMAGE_NAME,
+                "--format",
+                "{{index .Config.Labels \"devcontainer.metadata\"}}",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        assert result.returncode == 0
+        assert "/workspace" in result.stdout

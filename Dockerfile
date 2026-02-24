@@ -117,5 +117,7 @@ ENV PYTHONPATH="/workspace/MaxLEV:${PYTHONPATH}"
 
 WORKDIR /workspace
 
+LABEL devcontainer.metadata='[{"workspaceFolder": "/workspace", "remoteUser": "vplanet", "extensions": ["ms-python.python", "ms-vscode.cpptools"]}]'
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]
