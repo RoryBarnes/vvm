@@ -1,0 +1,15 @@
+#compdef vvm_push
+# Zsh completion for vvm_push (host -> container).
+# Source files complete from the local filesystem (default behavior).
+
+_vvm_push() {
+    _arguments -s \
+        '-a[Archive mode (preserve uid/gid)]' \
+        '-L[Follow symbolic links in source]' \
+        '-r[Copy directories recursively]' \
+        '-R[Copy directories recursively]' \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '*:file:_files'
+}
+
+_vvm_push "$@"

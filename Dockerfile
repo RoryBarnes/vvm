@@ -112,8 +112,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
 ENV GIT_EDITOR=nano
 ENV WORKSPACE=/workspace
 ENV VPLANET_BINARY=/workspace/vplanet/bin/vplanet
-ENV PATH="/workspace/vplanet/bin:/workspace/MaxLEV:${PATH}"
-ENV PYTHONPATH="/workspace/MaxLEV:${PYTHONPATH}"
+ENV PATH="/workspace/vplanet/bin:${PATH}"
 
 WORKDIR /workspace
 

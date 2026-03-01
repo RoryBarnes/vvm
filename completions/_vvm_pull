@@ -1,0 +1,52 @@
+#compdef vvm_pull
+# Zsh completion for vvm_pull (container -> host).
+# Source arguments complete from the container's /workspace directory.
+
+# ---------------------------------------------------------------------------
+# _vvm_container_paths: List files and directories inside /workspace
+# ---------------------------------------------------------------------------
+_vvm_container_paths() {
+    local sWorkspace="/workspace"
+    local sInput="${PREFIX}${SUFFIX}"
+
+    local sContainerDir sDisplayPrefix
+    if [[ "${sInput}" == */* ]]; then
+        sDisplayPrefix="${sInput%/*}/"
+        case "${sInput%/*}" in
+            /*) sContainerDir="${sWorkspace}${sInput%/*}" ;;
+            *)  sContainerDir="${sWorkspace}/${sInput%/*}" ;;
+        esac
+    else
+        sDisplayPrefix=""
+        sContainerDir="${sWorkspace}"
+    fi
+
+    local -a rawEntries
+    rawEntries=(${(f)"$(docker exec vvm ls -1p "${sContainerDir}/" 2>/dev/null)"})
+    [ ${#rawEntries} -eq 0 ] && return 1
+
+    local -a dirEntries fileEntries
+    local sEntry
+    for sEntry in "${rawEntries[@]}"; do
+        if [[ "${sEntry}" == */ ]]; then
+            dirEntries+=("${sEntry%/}")
+        else
+            fileEntries+=("${sEntry}")
+        fi
+    done
+
+    [ ${#dirEntries} -gt 0 ] && compadd -p "${sDisplayPrefix}" -S '/' -q -- "${dirEntries[@]}"
+    [ ${#fileEntries} -gt 0 ] && compadd -p "${sDisplayPrefix}" -- "${fileEntries[@]}"
+}
+
+_vvm_pull() {
+    _arguments -s \
+        '-a[Archive mode (preserve uid/gid)]' \
+        '-L[Follow symbolic links in source]' \
+        '-r[Copy directories recursively]' \
+        '-R[Copy directories recursively]' \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '*:container path:_vvm_container_paths'
+}
+
+_vvm_pull "$@"
