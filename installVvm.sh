@@ -95,6 +95,16 @@ fnInstallHomebrew() {
 }
 
 # ---------------------------------------------------------------------------
+# fnConfigureXquartz: Enable TCP connections for X11 display forwarding
+# ---------------------------------------------------------------------------
+fnConfigureXquartz() {
+    echo "[install] Enabling XQuartz network connections for display forwarding..."
+    defaults write org.xquartz.X11 nolisten_tcp -bool false
+    defaults write org.macports.X11 nolisten_tcp -bool false
+    echo "[install] XQuartz configured. Restart XQuartz for this to take effect."
+}
+
+# ---------------------------------------------------------------------------
 # fnInstallDebianDocker: Add Docker APT repository and install engine
 # ---------------------------------------------------------------------------
 fnInstallDebianDocker() {
@@ -324,6 +334,7 @@ if [ "${sPlatform}" = "Darwin" ]; then
         fnInstallHomebrew
         fnCloneAndLink "$(brew --prefix)/bin"
     fi
+    fnConfigureXquartz
     fnLinkColimaSocket
     echo ""
     echo "[install] Installation complete."

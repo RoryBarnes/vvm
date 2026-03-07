@@ -64,7 +64,7 @@ fnDisableX11Auth() {
         sXhost="/opt/X11/bin/xhost"
     fi
     if [ -n "${sXhost}" ]; then
-        "${sXhost}" + > /dev/null 2>&1 || true
+        DISPLAY=:0 "${sXhost}" + > /dev/null 2>&1 || true
     fi
 }
 
@@ -223,8 +223,12 @@ fnStartXquartz() {
     echo "[vvm] Starting XQuartz..."
     if [ -d "/Applications/Utilities/XQuartz.app" ]; then
         open -ga XQuartz
+    elif [ -d "/Applications/MacPorts/X11.app" ]; then
+        open -ga X11
     elif [ -x "/opt/X11/bin/Xquartz" ]; then
         /opt/X11/bin/Xquartz :0 &
+    elif [ -x "/opt/local/bin/Xquartz" ]; then
+        /opt/local/bin/Xquartz :0 &
     else
         echo "[vvm] WARNING: XQuartz not found. Display forwarding may not work."
         return
