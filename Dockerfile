@@ -57,6 +57,7 @@ RUN add-apt-repository -y ppa:deadsnakes/ppa \
     python3.11-venv \
     python3.11-distutils \
     python3.11-tk \
+    tk-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Make python3.11 the default
@@ -66,7 +67,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
 # All Python dependencies across the 9 repositories in a single cached layer.
 # Using --no-deps on editable installs means these must cover every runtime need.
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir --no-binary matplotlib \
     "numpy>=1.24,<2.0" \
     "scipy>=1.10" \
     "matplotlib>=3.7" \
